@@ -125,6 +125,12 @@ hermes memory setup           # arrow-key list → choose "nucleus"
 hermes memory status          # → Provider: nucleus, available ✓
 ```
 
+## Selecting Nucleus in each ecosystem
+
+Full per-platform instructions (Hermes picker, OpenClaw plugin slot,
+Claude MCP registration, everything else) live in
+**[docs/INTEGRATIONS.md](docs/INTEGRATIONS.md)**.
+
 ## Hooking up any other agent (MCP)
 
 Unlock once on the machine (`nucleus unlock --keychain` on macOS, or set
