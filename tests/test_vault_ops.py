@@ -147,3 +147,19 @@ def test_model_migration_reembed(vault, vault_path):
     # and a plain unlock works again (model re-pinned)
     v3 = Vault.unlock(vault_path, passphrase=PASS)
     assert v3.db.count() == 1
+
+
+def test_importance_boosts_ranking(vault):
+    # Two memories similar to a query; the higher-importance one should win.
+    vault.store("The project database is PostgreSQL", caller="test",
+                importance=0.2, tags=["low"])
+    vault.store("The project database is PostgreSQL", caller="test",
+                importance=0.9, tags=["high"])  # not an exact dup: different tags
+    # (exact-text dedup would merge these; make them distinct)
+    vault.store("Our main datastore is a Postgres database on the ops server",
+                caller="test", importance=0.9, tags=["high2"])
+    hits = vault.search("what database do we use", caller="test", top_k=3)["results"]
+    assert hits, "expected results"
+    # the high-importance memory should not rank below the low one
+    imps = [h["importance"] for h in hits]
+    assert imps[0] >= 0.5

@@ -55,41 +55,63 @@ happens exactly once per new memory, forever cached inside the vault.
 ## 2. How Nucleus decides what becomes a memory
 
 Nucleus never calls an LLM (that is what keeps the offline guarantee
-absolute), so the write decision is a **deterministic, three-stage
-mathematical filter** plus one agent-directed path:
+absolute), so the write decision is a **deterministic, importance-tiered
+classifier**. Its governing principle: **remember aggressively, and
+prioritize the user and their machine over world trivia.** The user is not
+here to have their words filtered — *every answer they give is
+information.*
 
-**Stage 1 — triviality filter.** Bare acknowledgements ("ok", "thanks",
-"continue"), empty turns, and sub-signal fragments store nothing. No model
-needed to know these carry no future value.
+**Store nearly everything.** The only turns dropped are genuinely empty
+ones. A bare "yes", "no", or "OK" is not noise — it is a decision, and
+often the most important thing in the whole session. When the assistant
+asks *"Can I edit the registry to accomplish this?"* and the user replies
+*"OK"*, Nucleus stores a self-contained consent record —
+`[decision <date>] Approved (answered "OK"): Can I edit the registry…` —
+by resolving the question from the preceding assistant turn. A later "did
+the user approve registry edits?" retrieves exactly that.
 
-**Stage 2 — durability signals.** Phrases that mark long-lived facts —
-*remember, always, never, prefer, my X is, deadline, every Monday,
-timezone, address, decided…* — force the store and raise importance
-(0.7 vs the default 0.4). An explicit "remember this" is never
-second-guessed by later stages.
+**Importance tiers drive ranking, so completeness never buries what
+matters.** Every stored memory gets a deterministic importance:
 
-**Stage 3 — the novelty gate.** An unsignaled turn is embedded and
-compared against existing memory. Let `s` be the cosine similarity of its
-nearest neighbor; the turn is stored only if
+| Importance | What |
+|---|---|
+| 0.90 | decisions / consent / explicit "remember this" |
+| 0.80 | personal facts and preferences (about the user) |
+| 0.75 | the user's machine / environment / configuration |
+| 0.55 | other substantive statements (incl. world facts the user states) |
+| 0.20 | pure social pleasantries ("thanks", "lol") — kept, ranked last |
 
-&nbsp;&nbsp;&nbsp;&nbsp;**novelty = 1 − s > 0.08**  (i.e. nearest neighbor < 0.92)
+Classification is by signal: personal pronouns and preference verbs
+(*I, my, prefer, favorite, always, remember*) mark tier-0.80 facts; system
+vocabulary (*registry, path, password, port, install, version, sudo,
+service*) marks tier-0.75 machine facts. Nothing is discarded for being
+low-value — pleasantries are simply ranked last.
 
-with an exact-duplicate guard at 0.97 on every write path. The
-consequence is the design's key growth property: **storage grows with
-unique information, not with turn count.** Ask about the same topic
-fifty times and the vault holds it once — while a genuinely new fact
-always clears the gate, because novelty is measured in the same vector
-space used for recall.
+**Deduplication is exact-match only.** Vault.store drops a write whose
+nearest neighbor is ≥ 0.97 cosine (a literal repeat) and returns the
+existing id. There is deliberately **no aggressive novelty gate**: a second
+"yes" to a *different* question is new information, and because its stored
+text embeds the question it is not a near-duplicate anyway. Nucleus favors
+completeness over compactness — at a few KB per memory, thousands of turns
+cost only a few MB, and importance-weighted ranking keeps recall sharp.
+
+**Recall reflects the priority.** The fused search score is
+`RRF(vector) + RRF(keyword) + 0.02·cosine + 0.006·importance`. The cosine
+term preserves the *magnitude* of a strong match (so the best answer wins
+outright); the importance term is a gentle nudge that lets a
+personal/decision memory win a genuine near-tie without overriding a
+clearly better match. In practice: ask "what theme does the user like?"
+and the dark-mode preference wins on relevance; ask "did the user approve
+the registry edit?" and the consent decision wins.
 
 **The agent-directed path.** The host model (Hermes, Claude, anything)
 also holds `nucleus_store` / `nucleus_forget` tools, so the intelligence
-*you already pay for* curates memory explicitly — distilling a session
-into durable facts, deleting stale ones, crypto-shredding sensitive ones.
-Nucleus deliberately splits the labor: **the host model supplies judgment;
-Nucleus supplies deterministic math, encryption, and total recall.** A
-memory layer that runs its own LLM either phones home (privacy gone) or
-ships a second multi-gigabyte model (your RAM gone) — and its decisions
-become non-reproducible either way.
+*you already pay for* can curate explicitly — distilling, correcting, or
+crypto-shredding memories. Nucleus splits the labor: **the host model
+supplies judgment; Nucleus supplies deterministic capture, encryption, and
+total recall.** A memory layer that runs its own LLM either phones home
+(privacy gone) or ships a second multi-gigabyte model (your RAM gone) — and
+its decisions become non-reproducible either way.
 
 Recall closes the loop: before each turn the user's message is embedded
 and the top memories above cosine 0.45 are injected as context, ranked by
@@ -119,10 +141,13 @@ Systems that let the embedding model drift silently corrupt every
 similarity they compute afterward — the errors are invisible until
 retrieval quietly degrades.
 
-**Sub-linear memory growth.** The novelty gate bounds the vault by the
-information content of your history rather than its length. Turn-logging
-systems grow O(turns) and their retrieval drowns in near-duplicates of
-whatever you discuss most — precisely the memories that add nothing.
+**Completeness with clean recall.** Nucleus stores nearly every turn (only
+exact-duplicate writes are dropped), so nothing the user says is lost —
+but importance tiers and cosine-weighted fusion keep retrieval sharp, so a
+complete store does not mean a noisy recall. Turn-logging systems also grow
+O(turns) but rank purely by recency or raw keyword match, so their
+retrieval drowns in whatever the user discusses most; Nucleus ranks by
+relevance-plus-importance, surfacing decisions and personal facts first.
 
 **The write path is crash-proof by argument, not by luck.** An
 acknowledged write is an fsync'd, AEAD-sealed journal entry; compaction is
@@ -148,11 +173,12 @@ privacy surrender. The RAM-residency that makes Nucleus secure (no
 plaintext index on disk) is the same property that makes it fast — in
 this design, security and speed are the same decision.
 
-**Honest limits** (see SECURITY.md for the full threat model): novelty
-gating is heuristic, not semantic understanding — the host model's
-explicit curation exists precisely to cover what heuristics miss; HNSW
-above 20k records is ~99% recall, not 100%; and no memory system can
-protect an unlocked vault from a fully compromised OS.
+**Honest limits** (see SECURITY.md for the full threat model): importance
+classification is heuristic, not semantic understanding — the host model's
+explicit curation exists precisely to cover what heuristics miss; storing
+nearly everything trades disk for completeness by design; HNSW above 20k
+records is ~99% recall, not 100%; and no memory system can protect an
+unlocked vault from a fully compromised OS.
 
 ## 4. The same math, in one table
 
@@ -160,7 +186,7 @@ protect an unlocked vault from a fully compromised OS.
 |---|---|---|---|---|
 | Recall correctness (personal scale) | exact, 1.0 | ANN ≈0.95–0.99 | ANN ≈0.95–0.99 | keyword only |
 | Store/recall latency | ~25 ms / <1 ms | 100 ms–40 s | ms | ms |
-| Storage growth | O(unique information) | O(turns) | O(turns) | O(turns) |
+| Storage & ranking | complete store, importance-ranked recall | O(turns), recency-ranked | O(turns) | O(turns), keyword-ranked |
 | Embedding-space consistency | hash-pinned, enforced | provider may change | unenforced | n/a |
 | At-rest encryption (incl. vectors) | always, AEAD | provider-side | usually none | none |
 | Deletion | crypto-shred | request + trust | row delete | row delete |

@@ -123,41 +123,63 @@ class NucleusMemoryProvider(MemoryProvider):
         # append) is correct here — and nothing is lost if the process exits
         # right after the turn.
         #
-        # What becomes a memory (see docs/MEMORY.md):
-        #   1. triviality filter  — bare acks / empty turns store nothing
-        #   2. durability signals — "remember/always/my X is/…" force the
-        #      store at raised importance
-        #   3. novelty gate       — unsignaled turns are embedded and only
-        #      stored if they ADD information (nearest-neighbor cosine
-        #      < salience.NOVELTY_THRESHOLD)
+        # Policy (see docs/MEMORY.md): store nearly everything, prioritizing
+        # the user and their machine. A bare yes/no is a DECISION and is
+        # captured together with the question that produced it. Dedup is
+        # exact-match only (handled in Vault.store).
+        import datetime
+
         from nucleus import salience
         u = (user_content or "").strip()[:_TURN_CHAR_LIMIT]
         a = (assistant_content or "").strip()[:_TURN_CHAR_LIMIT]
         verdict = salience.assess_turn(u, a)
         if not verdict.store:
-            logger.debug("nucleus: turn not stored (%s)", verdict.reason)
             return
-        self._store_with_retry(f"User: {u}\nAssistant: {a}",
-                               importance=verdict.importance,
-                               novelty_gate=not verdict.has_signal)
 
-    def _store_with_retry(self, text: str, importance: float = 0.4,
-                          novelty_gate: bool = False) -> None:
-        from nucleus import salience
+        tags = ["hermes", f"session:{self._session_id[:12]}", *verdict.tags]
+        if verdict.is_decision:
+            # Turn a bare "OK"/"no" into a self-contained consent record by
+            # attaching the assistant's preceding question.
+            date = datetime.date.today().isoformat()
+            question = self._prior_question(messages, u) or a
+            verb = "Approved" if verdict.polarity == "affirm" else "Declined"
+            # Lean template: keep the question (the real content) and minimal
+            # scaffolding, so generic words don't create spurious keyword hits.
+            if question:
+                text = f"[decision {date}] {verb} (answered \"{u}\"): {question}"
+            else:
+                text = f"[decision {date}] {verb} (answered \"{u}\")."
+        else:
+            text = f"User: {u}" + (f"\nAssistant: {a}" if a else "")
+
+        self._store_with_retry(text, importance=verdict.importance, tags=tags)
+
+    @staticmethod
+    def _prior_question(messages, user_content: str) -> str | None:
+        """The assistant message that this user turn is answering — the
+        question behind a yes/no. Scans the conversation for the last
+        assistant message before the final user message."""
+        if not messages:
+            return None
+        try:
+            last_user = max(i for i, m in enumerate(messages)
+                            if m.get("role") == "user")
+        except ValueError:
+            return None
+        for m in reversed(messages[:last_user]):
+            if m.get("role") == "assistant" and isinstance(m.get("content"), str) \
+                    and m["content"].strip():
+                return m["content"].strip()[:_TURN_CHAR_LIMIT]
+        return None
+
+    def _store_with_retry(self, text: str, importance: float = 0.55,
+                          tags=None) -> None:
         from nucleus.vault import VaultStaleError
         for attempt in (1, 2):
             try:
                 v = self._open()
-                if novelty_gate:
-                    top = v.search(text, caller=_CALLER, namespace=_NAMESPACE,
-                                   top_k=1)["results"]
-                    if top and top[0]["cosine"] >= salience.NOVELTY_THRESHOLD:
-                        logger.debug("nucleus: turn not stored (novelty %.2f "
-                                     "below threshold)", 1 - top[0]["cosine"])
-                        return
                 v.store(text, caller=_CALLER, namespace=_NAMESPACE,
-                        tags=["hermes", f"session:{self._session_id[:12]}"],
-                        importance=importance)
+                        tags=tags or ["hermes"], importance=importance)
                 return
             except VaultStaleError:
                 self._vault = None  # reopen and retry once
