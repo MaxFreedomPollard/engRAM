@@ -41,7 +41,7 @@ hole; Nucleus doesn't have it.
 
 New memories land in the writing agent's namespace (e.g. `hermes`), in the
 same vault and the same searchable index as the starter pack
-(`packs/core-facts`) — one vector space, searched together. Pack
+(`packs/starter`) — one vector space, searched together. Pack
 namespaces stay read-only, so curated knowledge is never diluted by chat
 traffic, and living memory never has to be shipped to be shared.
 

@@ -16,7 +16,7 @@ if (Test-Path (Join-Path $repoRoot "pyproject.toml")) {
 }
 
 Write-Host ""
-Write-Host "Creating your vault (installs core + AKC pragmatic + Windows fact packs)..."
+Write-Host "Creating your vault (installs the 4,807-fact starter knowledge)..."
 nucleus init
 
 Write-Host @"

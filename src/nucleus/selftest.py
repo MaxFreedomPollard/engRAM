@@ -1,4 +1,5 @@
-"""Post-install health check: canned queries against the frozen core seed pack.
+"""Post-install health check: canned queries against the frozen core
+section of the starter pack (ids core-001..core-260).
 
 Each query must place its expected record in the top 3 hybrid-search hits.
 Doubles as the relevance regression benchmark (the seed pack never changes
@@ -40,12 +41,12 @@ def run(vault, caller: str = "selftest") -> dict:
     idmap = _seed_id_map(vault)
     if not idmap:
         return {"passed": 0, "failed": len(QUERIES), "total": len(QUERIES),
-                "error": "core-facts seed pack is not installed",
-                "failures": ["seed pack missing"], "latencies_ms": []}
+                "error": "starter pack is not installed",
+                "failures": ["starter pack missing"], "latencies_ms": []}
     latencies, failures = [], []
     for query, want in QUERIES:
         t0 = time.perf_counter()
-        res = vault.search(query, caller=caller, namespace="packs/core-facts",
+        res = vault.search(query, caller=caller, namespace="packs/starter",
                            top_k=TOP_N)
         ms = (time.perf_counter() - t0) * 1000
         latencies.append(round(ms, 1))
@@ -65,7 +66,7 @@ def _seed_id_map(vault) -> dict[str, str]:
     pack records via their tags/text? — we match on the stable text prefix)."""
     out = {}
     for row in vault.db.conn.execute(
-            "SELECT id FROM records WHERE ns = 'packs/core-facts'"):
+            "SELECT id FROM records WHERE ns = 'packs/starter'"):
         rec = vault.get(row["id"], caller="selftest")
         # original ids were preserved in the pack records' "orig_id" tag
         for t in rec["tags"]:

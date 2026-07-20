@@ -49,21 +49,16 @@ def _pack_bytes(name: str) -> bytes | None:
 
 
 def _seed_pack_bytes() -> bytes:
-    b = _pack_bytes("core-facts")
+    b = _pack_bytes("starter")
     if b is None:
-        raise CryptoError("Bundled core-facts.mpack is missing from this install")
+        raise CryptoError("Bundled starter.mpack is missing from this install")
     return b
 
 
 def _starter_pack_names() -> list[str]:
-    """Packs auto-installed at init: the core seed, the pragmatic AKC
-    knowledge, and the fact pack for THIS operating system."""
-    from .platforms import current_os_pack
-    names = ["core-facts", "akc-pragmatic"]
-    os_pack = current_os_pack()
-    if os_pack:
-        names.append(os_pack)
-    return names
+    """Auto-installed at init: the single unified starter pack (general
+    facts + AKC pragmatic knowledge + macOS/Windows/Linux references)."""
+    return ["starter"]
 
 
 def _print(obj) -> None:

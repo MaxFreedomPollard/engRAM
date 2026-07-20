@@ -58,7 +58,7 @@ manual steps, for reference:
 python -m pip install nucleus-vault
 # 2. the provider plugin (from this repo)
 cp -r integrations/hermes/nucleus ~/.hermes/plugins/nucleus
-# 3. a vault (once) — seeds ~4,700 starter facts, stays unlocked until reboot
+# 3. a vault (once) — seeds 4,807 starter facts, stays unlocked until reboot
 nucleus init
 # 4. SELECT IT
 hermes memory setup

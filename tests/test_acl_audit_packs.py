@@ -30,7 +30,7 @@ def test_namespace_acl_read_write(vault):
 
 def test_pack_namespaces_always_readonly(seeded_vault):
     with pytest.raises(AclError):
-        seeded_vault.store("vandalism", caller="test", namespace="packs/core-facts")
+        seeded_vault.store("vandalism", caller="test", namespace="packs/starter")
 
 
 def test_quarantine_envelope(vault):
@@ -55,13 +55,13 @@ def test_audit_chain_verify_and_break_detection(vault):
 def test_pack_lifecycle_fast_path_and_reembed(vault):
     out = packs.install_pack(vault, seed_pack_bytes(), caller="test")
     assert out["used_precomputed_vectors"] is True
-    assert out["records"] == 260
-    assert vault.db.count("packs/core-facts") == 260
+    assert out["records"] == 4807
+    assert vault.db.count("packs/starter") == 4807
 
-    n = packs.remove_pack(vault, "core-facts", caller="test")
-    assert n == 260 and vault.db.count("packs/core-facts") == 0
+    n = packs.remove_pack(vault, "starter", caller="test")
+    assert n == 4807 and vault.db.count("packs/starter") == 0
     with pytest.raises(packs.PackError):
-        packs.remove_pack(vault, "core-facts", caller="test")
+        packs.remove_pack(vault, "starter", caller="test")
 
     # model-mismatch path: forge a pack claiming another model
     ident = packs.new_identity("other")

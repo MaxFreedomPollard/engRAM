@@ -1,7 +1,5 @@
 """Cross-platform primitives: file lock works, boot time is stable-in-session,
 OS pack selection matches the running platform."""
-import platform
-
 import pytest
 
 from nucleus import platforms
@@ -27,9 +25,3 @@ def test_filelock_reacquire_after_release(tmp_path):
         pass
     with platforms.FileLock(lockpath, timeout=1):  # released → acquirable again
         pass
-
-
-def test_os_pack_matches_platform():
-    expected = {"Darwin": "os-macos", "Windows": "os-windows",
-                "Linux": "os-linux"}.get(platform.system())
-    assert platforms.current_os_pack() == expected

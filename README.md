@@ -6,7 +6,7 @@ Nucleus is a memory vault your agents plug into: Hermes selects it as a
 native memory provider, Claude connects over MCP, and anything that can
 run a subprocess can use the CLI. Everything is local. The default install
 never touches the network, not even once: the embedding model ships inside
-the package, and roughly 4,700 starter facts arrive as precomputed vectors,
+the package, and 4,807 starter facts arrive as precomputed vectors,
 so recall works seconds after install. Every byte at rest is
 AEAD-encrypted, including the vectors. The vault locks itself on restart or
 power loss and unlocks once per boot.
@@ -70,14 +70,14 @@ and `nucleus bench`.
 
 | Metric | Measured |
 |---|---|
-| Fresh install → working memory | ~4,700 facts, seconds, zero network |
+| Fresh install → working memory | 4,807 facts, seconds, zero network |
 | Hybrid recall over the starter corpus | p50 ≈ 2 ms per query |
 | Vector search, 20k records (HNSW) | p95 0.68 ms |
 | Full hybrid search (embed + vector + BM25 + fuse) | p95 8.8 ms |
 | Peak RSS, model + vault + index resident | 319 MB |
 | Store one memory (embed + encrypt + fsync journal) | ~40 ms |
 | Wheel size, model and starter packs included | 30 MB |
-| Test suite (crypto, tamper, crash, offline, concurrency) | 67 tests, ~10 s |
+| Test suite (crypto, tamper, crash, offline, concurrency) | 63 tests, ~25 s |
 
 A single network round-trip to a cloud memory API costs more than this
 entire pipeline. The property that makes Nucleus secure (no plaintext
@@ -121,39 +121,34 @@ offline guarantee absolute and every decision reproducible.
 
 ## Starter knowledge (never begin blank)
 
-Every fresh vault is seeded with **4,703 facts** (on macOS; 4,707 on
-Windows, 4,705 on Linux), all Ed25519-signed and shipped with precomputed
-vectors, so install does zero embedding work. Exact contents:
+Every fresh vault is seeded with **one unified pack: `starter`, 4,807
+facts**, Ed25519-signed, shipped with precomputed vectors (install does
+zero embedding work). Its single editable source is
+[`tools/starter/starter_facts.jsonl`](tools/starter/starter_facts.jsonl):
+one JSON fact per line, readable and editable by hand. Exact contents:
 
-**`core-facts` — 260 facts** (the frozen `selftest` corpus):
-60 world capitals · 30 chemical elements (symbol + atomic number) ·
-30 unit conversions · 30 historical dates · 40 science facts ·
-30 geography facts · 20 math facts · 20 astronomy facts.
+- **260 general facts** (ids `core-*`, the frozen `selftest` corpus):
+  60 world capitals · 30 chemical elements (symbol + atomic number) ·
+  30 unit conversions · 30 historical dates · 40 science · 30 geography ·
+  20 math · 20 astronomy.
+- **4,394 pragmatic facts** (ids `akc-*`, from the
+  [Artificial Knowledge Collection 6.0](https://github.com/MaxFreedomPollard/artificial-knowledge-collection-6.0),
+  compilation CC BY-SA 4.0): 434 real-world measurements with ranges ·
+  415 CODATA physical constants · 1,706 country facts (capital,
+  population, area, government, languages, life expectancy for 261
+  countries) · 645 named physical features · 594 element/planet/moon/
+  constellation facts · 600 common-food nutrition facts.
+- **153 operating-system facts** (ids `macos-*`, `windows-*`, `linux-*`),
+  all platforms on every install: Windows registry hives and keys
+  (HKLM/HKCU/HKCR, Run/Uninstall/Services), %APPDATA%-family paths,
+  NTFS/FAT32/exFAT, reg/sfc/DISM/winget · macOS APFS, ~/Library, launchd,
+  codesign/spctl/defaults, SIP/Gatekeeper/TCC · Linux FHS, systemd,
+  apt/dnf/pacman, permission bits.
 
-**`akc-pragmatic` — 4,394 facts** (from the
-[Artificial Knowledge Collection 6.0](https://github.com/MaxFreedomPollard/artificial-knowledge-collection-6.0),
-compilation CC BY-SA 4.0):
-434 real-world measurements (typical mass/size/speed of things, with
-ranges) · 415 CODATA physical constants · 1,706 country facts (capital,
-population, area, government, languages, life expectancy, region for 261
-countries) · 645 named physical features (lakes, rivers, deserts) ·
-594 element/astronomy facts (118 elements with properties, planets,
-moons, the 88 constellations) · 600 common-food nutrition facts (kcal,
-protein, fat per 100 g).
-
-**One OS pack, auto-selected for your platform:**
-`os-windows` (53 facts: registry hives HKLM/HKCU/HKCR/HKU/HKCC, the
-Run/Uninstall/Services keys, hive backing files, `%APPDATA%`-family
-paths, System32/SysWOW64, NTFS/FAT32/exFAT, reg/sfc/DISM/winget,
-versions and builds) · `os-macos` (49 facts: APFS, `~/Library` layout,
-launchd, codesign/spctl/defaults/launchctl, SIP/Gatekeeper/TCC/FileVault,
-shortcuts) · `os-linux` (51 facts: FHS paths, /etc files, systemd,
-apt/dnf/pacman/zypper, permission bits, core commands).
-
-Add your own facts before or after install (see
-[PACKS.md](PACKS.md)): `nucleus pack export` dumps any shipped pack to
-editable JSONL, `nucleus pack build` re-signs it, and `nucleus store` /
-`nucleus import` grow the live vault directly.
+To change what ships: edit `starter_facts.jsonl`, run
+`python tools/build_starter_pack.py`, done — every line is re-embedded and
+the pack re-signed ([PACKS.md](PACKS.md)). Grow a live vault directly with
+`nucleus store` / `nucleus import`.
 
 ## The lock model
 

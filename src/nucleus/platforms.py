@@ -142,9 +142,3 @@ def machine_id() -> str:
         pass
     import socket
     return socket.gethostname()
-
-
-def current_os_pack() -> str | None:
-    """The OS fact pack name for this platform, or None if unsupported."""
-    return {"Darwin": "os-macos", "Windows": "os-windows",
-            "Linux": "os-linux"}.get(platform.system())

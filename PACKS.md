@@ -49,61 +49,35 @@ pack replaces it wholesale (semver replace, never merge).
 - Facts should stand alone (one self-contained statement per record) —
   retrieval returns records, not documents.
 
-## The core seed pack
+## The starter pack
 
-`core-facts` ships inside the package, auto-installs at `init`, and is
-frozen within a major version: it is Nucleus's install-verification and
-regression corpus (`nucleus selftest`). Don't remove it unless you have a
-reason; it costs ~1MB of RAM.
+`starter` (4,807 facts) ships inside the package and auto-installs at
+`init`. Its canonical, hand-editable source is
+`tools/starter/starter_facts.jsonl`: one JSON object per line,
 
-## Extending the starter (seed) memory
-
-The starter memory every install receives is `core-facts`, built from the
-canonical file `tools/seed/core_facts.jsonl`. To add to it:
-
-1. Append lines at the END of `tools/seed/core_facts.jsonl`, continuing
-   the id sequence:
-   ```json
-   {"id": "core-261", "text": "Your fact as one self-contained sentence.", "tags": ["core", "custom"]}
-   ```
-   Never edit or renumber `core-001`–`core-260` — they are the frozen
-   corpus behind `nucleus selftest`. (And never rerun
-   `tools/make_seed_facts.py`; it is the one-time bootstrap generator and
-   refuses to overwrite the canonical file.)
-2. Rebuild — this re-embeds every fact with the bundled model and
-   re-signs the pack, so additions become vector memory automatically:
-   ```bash
-   python tools/build_seed_pack.py 1.1.0     # arg = new pack version
-   ```
-3. Refresh an existing vault (replaces `packs/core-facts` wholesale;
-   personal namespaces untouched):
-   ```bash
-   nucleus pack install src/nucleus/data/core-facts.mpack
-   ```
-4. `nucleus selftest` (must stay 20/20), then commit. Every future
-   `nucleus init` includes your additions.
-
-## Hand-editing the shipped starter packs
-
-Every shipped pack can be dumped to plain JSONL, edited in any text
-editor, and re-signed:
-
-```bash
-# 1. dump to editable JSONL
-nucleus pack export src/nucleus/data/akc-pragmatic.mpack akc.jsonl
-# 2. edit akc.jsonl by hand (one {"id","text","tags"} object per line —
-#    delete lines, fix wording, append new facts with new ids)
-# 3. rebuild + re-sign into the package
-nucleus pack build akc.jsonl --name akc-pragmatic --version 1.0.1 \
-    --identity tools/pack_identity.json \
-    --out src/nucleus/data/akc-pragmatic.mpack
-# 4. refresh your own vault + verify
-nucleus pack install src/nucleus/data/akc-pragmatic.mpack
-nucleus selftest
+```json
+{"id": "akc-00001", "tags": ["akc", "measurements"], "text": "The body mass of a african elephant (adult) is typically about 6,000 kg (ranging from 4,000 to 7,000 kg)."}
 ```
 
-The same workflow applies to the OS packs. For `core-facts`, edit
-`tools/seed/core_facts.jsonl` directly (append-only; ids core-001..260
-are frozen for selftest) and rebuild with `tools/build_seed_pack.py`.
-Rebuilding re-embeds every line with the bundled model, so hand-added
-text becomes vector memory automatically.
+### Editing the starter memory
+
+1. Edit `tools/starter/starter_facts.jsonl` in any editor: insert, delete,
+   reword, append. Line position is irrelevant to retrieval; only ids must
+   stay unique. Keep ids `core-001`..`core-260` textually intact (they are
+   the frozen `nucleus selftest` corpus).
+2. Rebuild (re-embeds every line with the bundled model and re-signs):
+   ```bash
+   python tools/build_starter_pack.py 1.0.1     # arg = new pack version
+   ```
+3. Refresh an existing vault and verify:
+   ```bash
+   nucleus pack install src/nucleus/data/starter.mpack
+   nucleus selftest      # must stay 20/20
+   ```
+Every future `nucleus init` then includes your edits.
+
+The AKC-derived section can be regenerated from upstream with
+`tools/build_akc_pack.py` (writes `tools/starter/akc_regenerated.jsonl`
+for merging). Any other pack can be dumped for editing with
+`nucleus pack export <file.mpack> <out.jsonl>` and rebuilt with
+`nucleus pack build`.

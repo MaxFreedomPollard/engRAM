@@ -1,4 +1,4 @@
-"""Build the `akc-pragmatic` memory pack from Artificial Knowledge Collection 6.0.
+"""Regenerate the AKC-derived section of the starter memory (JSONL).
 
 Converts AKC's structured records into self-contained natural-language fact
 sentences (what a vector memory retrieves well), embeds them with the bundled
@@ -22,7 +22,7 @@ from nucleus.embed import DEFAULT_MODEL, Embedder
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 IDENTITY_FILE = ROOT / "tools" / "pack_identity.json"
-OUT = ROOT / "src" / "nucleus" / "data" / "akc-pragmatic.mpack"
+OUT = ROOT / "tools" / "starter" / "akc_regenerated.jsonl"
 
 # AKC source files (basename → subdir/file in a repo checkout)
 AKC_FILES = {
@@ -202,22 +202,14 @@ def main():
     if not records:
         raise SystemExit("no AKC facts produced — is tools/akc_source/ populated?")
 
-    identity = json.loads(IDENTITY_FILE.read_text())
-    emb = Embedder(DEFAULT_MODEL)
-    print("embedding (bundled bge-small int8)…")
-    vectors = emb.embed_passages(texts)
-    blob = packs.build_pack(
-        name="akc-pragmatic", version=version,
-        description="Pragmatic facts from Artificial Knowledge Collection 6.0: "
-                    "measurements, physical constants, country facts, chemical "
-                    "elements, astronomy, and common-food nutrition. "
-                    "Source: MaxFreedomPollard/artificial-knowledge-collection-6.0 "
-                    "(compilation CC BY-SA 4.0).",
-        records=records, vectors=vectors,
-        model={"name": DEFAULT_MODEL, "sha256": emb.model_sha256, "dim": emb.dim},
-        identity=identity)
-    OUT.write_bytes(blob)
-    print(f"built {OUT} ({len(records)} records, {len(blob)/1024/1024:.1f} MB)")
+    # The starter memory is unified now: this writes the regenerated AKC
+    # section as JSONL. Merge it into tools/starter/starter_facts.jsonl
+    # (replacing the akc-* lines), then run tools/build_starter_pack.py.
+    with open(OUT, "w") as f:
+        for r in records:
+            f.write(json.dumps(r, sort_keys=True, ensure_ascii=False) + "\n")
+    print(f"wrote {OUT} ({len(records)} records) — merge into "
+          "starter_facts.jsonl and rebuild with tools/build_starter_pack.py")
 
 
 if __name__ == "__main__":

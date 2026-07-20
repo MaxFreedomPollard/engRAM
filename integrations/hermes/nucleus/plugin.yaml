@@ -1,5 +1,5 @@
 name: nucleus
-version: 1.6.0
+version: 1.7.0
 description: "Nucleus — high-security, fully offline, encrypted vector memory. AEAD-encrypted vault, locked-by-default after restart, ships with a starter knowledge pack."
 pip_dependencies: []
 requires_env: []

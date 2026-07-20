@@ -16,7 +16,7 @@ else
 fi
 
 echo
-echo "Creating your vault (installs core + AKC pragmatic + macOS fact packs)…"
+echo "Creating your vault (installs the 4,807-fact starter knowledge)…"
 nucleus init
 
 cat <<'EOF'

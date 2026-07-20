@@ -12,7 +12,7 @@ PASS = "CorrectHorse"
 
 
 def seed_pack_bytes() -> bytes:
-    return (SRC / "nucleus" / "data" / "core-facts.mpack").read_bytes()
+    return (SRC / "nucleus" / "data" / "starter.mpack").read_bytes()
 
 
 @pytest.fixture()
