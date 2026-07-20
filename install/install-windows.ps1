@@ -1,5 +1,5 @@
 # engRAM installer - Windows (PowerShell)
-# Installs the package, creates + unlocks a vault (with Windows starter facts),
+# Installs the package, creates + unlocks a vault,
 # and prints the Hermes selection step. Fully offline after this script.
 $ErrorActionPreference = "Stop"
 
@@ -16,7 +16,7 @@ if (Test-Path (Join-Path $repoRoot "pyproject.toml")) {
 }
 
 Write-Host ""
-Write-Host "Creating your vault (installs the 4,807-fact starter knowledge)..."
+Write-Host "Creating your encrypted vault..."
 engram init
 
 Write-Host @"

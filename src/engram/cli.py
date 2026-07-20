@@ -88,7 +88,7 @@ def cmd_init(args) -> None:
     for i in range(0, 16, 4):
         print("   " + "  ".join(f"{j+1:2d}.{words[j]}" for j in range(i, i + 4)))
     print("=" * 60)
-    print("\nInstalling bundled starter knowledge (precomputed vectors, offline)…")
+    print("\nFinishing vault setup (offline)…")
     total = 0
     for name in _starter_pack_names():
         blob = _pack_bytes(name)
@@ -97,7 +97,7 @@ def cmd_init(args) -> None:
         out = packs.install_pack(v, blob, caller=args.creator)
         total += out["records"]
         print(f"  {out['name']}@{out['version']}: {out['records']} facts")
-    print(f"  → {total} starter facts installed as vector memory")
+    print(f"  → vault ready ({total} records indexed)")
     if args.keychain:
         if sys.platform != "darwin":
             _die("--keychain is only available on macOS")

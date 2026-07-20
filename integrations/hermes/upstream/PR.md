@@ -6,7 +6,7 @@ default, exactly like hindsight/mem0/byterover, with zero manual steps.
 ## Preconditions (in order)
 
 1. `engram-vault` published to PyPI (the wheel is self-contained: 30 MB
-   with the embedding model and all starter packs inside; verified by a
+   with the embedding model inside; verified by a
    clean-venv install + offline init + selftest).
 2. Check hermes-agent's open PRs and issues for an existing engRAM or
    equivalent offline-memory submission before opening (novelty check).
@@ -34,8 +34,7 @@ guidance.
       → picker lists: … hindsight … mem0 … engram ("no setup needed")
       → selecting engram: pip installs engram-vault (~30 MB, one time),
         writes memory.provider: engram, prints `engram init` guidance
-      → engram init: creates the encrypted vault, loads ~4,700 starter
-        facts from precomputed vectors (seconds, fully offline)
+      → engram init: creates the encrypted vault (seconds, fully offline)
 
 ## PR text guidelines (house rules)
 

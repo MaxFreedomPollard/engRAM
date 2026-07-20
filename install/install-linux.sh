@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # engRAM installer - Linux
-# Installs the package, creates + unlocks a vault (with Linux starter facts),
+# Installs the package, creates + unlocks a vault,
 # and prints the Hermes selection step. Fully offline after this script.
 set -euo pipefail
 
@@ -15,7 +15,7 @@ else
 fi
 
 echo
-echo "Creating your vault (installs the 4,807-fact starter knowledge)…"
+echo "Creating your encrypted vault…"
 engram init
 
 cat <<'EOF'
