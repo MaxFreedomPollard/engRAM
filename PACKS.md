@@ -49,11 +49,13 @@ pack replaces it wholesale (semver replace, never merge).
 - Facts should stand alone (one self-contained statement per record) -
   retrieval returns records, not documents.
 
-## The starter pack
+## Built-in pack (maintainer notes)
 
-`starter` (4,807 facts) ships inside the package and auto-installs at
-`init`. Its canonical, hand-editable source is
-`tools/starter/starter_facts.jsonl`: one JSON object per line,
+engRAM can ship a signed built-in pack that auto-installs at `init`.
+That path is for maintainers who edit and rebuild pack contents; it is
+not a user-facing selling point. Canonical hand-editable source:
+
+`tools/starter/starter_facts.jsonl` - one JSON object per line,
 
 ```json
 {"id": "akc-00001", "tags": ["akc", "measurements"], "text": "The body mass of a african elephant (adult) is typically about 6,000 kg (ranging from 4,000 to 7,000 kg)."}

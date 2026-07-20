@@ -5,11 +5,10 @@
 engRAM is the memory your AI agents plug into. Hermes selects it as a
 native provider, Claude connects over MCP, OpenClaw registers it in one
 command, and anything that runs a subprocess can use the CLI. Everything
-is local. The default install never touches the network, not once: the
-embedding model ships inside the package, and 4,808 starter facts arrive
-as precomputed vectors, so recall works seconds after install. Every byte
-at rest is AEAD-encrypted, the vectors included. The vault locks itself on
-restart or power loss and unlocks once per boot.
+is local. The default install never touches the network: the embedding
+model ships inside the package, so recall works as soon as the vault is
+open. Every byte at rest is AEAD-encrypted, the vectors included. The
+vault locks itself on restart or power loss and unlocks once per boot.
 
 *An **engram** is the physical trace a memory leaves in the brain. This
 one lives in **RAM**: the whole index is held in memory, which is what
@@ -23,11 +22,11 @@ refuses the trade, because one design decision delivers all three.
 
 **Better recall.** engRAM does not just store chat, it decides what
 matters. A bare "OK" answering "may I edit the registry?" is captured as a
-consent decision, with its question, at the highest priority. Facts about
-you and your machine outrank world trivia. Search is hybrid (meaning plus
-keywords) and, at personal scale, mathematically exact: the top result is
-the true top result, not an approximation. It learns you first, and
-forgets nothing.
+consent decision, with its question, at the highest priority. What you
+said about yourself and your machine outranks background noise. Search is
+hybrid (meaning plus keywords) and, at personal scale, mathematically
+exact: the top result is the true top result, not an approximation. It
+learns you first, and forgets nothing.
 
 **More secure, by construction.** Every byte at rest is authenticated-
 encrypted, the embedding vectors included (most tools leave those in the
@@ -37,7 +36,7 @@ Tampering is detected, history is hash-chained, and the vault locks itself
 on restart or power loss. It runs fully offline: a runtime guard aborts on
 any network attempt, and CI proves it on three operating systems.
 
-**Not one step harder.** One command installs it, seeds 4,808 facts, and
+**Not one step harder.** One command installs it, creates the vault, and
 wires your agent. No API key, no cloud account, no daemon. You unlock once
 and it stays open for weeks, like any app you leave running. The security
 is free at the point of use because it falls out of the architecture, not
@@ -48,7 +47,7 @@ fast are the same choice here, and neither costs you a configuration step.
 ## Install
 
 One command per platform. Each installs the package, creates your
-encrypted vault preloaded with the starter knowledge, and wires the agent.
+encrypted vault, and wires the agent.
 
 **Claude (Code + Desktop)** - macOS / Linux:
 ```bash
@@ -100,13 +99,12 @@ and `engram bench`.
 
 | Metric | Measured |
 |---|---|
-| Fresh install → working memory | 4,808 facts, seconds, zero network |
-| Hybrid recall over the starter corpus | p50 ≈ 2 ms per query |
+| Fresh install → open vault, offline | seconds, zero network |
 | Vector search, 20k records (HNSW) | p95 0.68 ms |
 | Full hybrid search (embed + vector + BM25 + fuse) | p95 8.8 ms |
 | Peak RSS, model + vault + index resident | 319 MB |
 | Store one memory (embed + encrypt + fsync journal) | ~40 ms |
-| Wheel size, model and starter packs included | 30 MB |
+| Wheel size, model included | ~30 MB |
 | Test suite (crypto, tamper, crash, offline, concurrency) | 63 tests, ~25 s |
 
 A single network round-trip to a cloud memory API costs more than this
@@ -149,36 +147,29 @@ via `engram_store` / `engram_forget`; engRAM contributes deterministic
 capture, encryption, and total recall. That split is what makes the
 offline guarantee absolute and every decision reproducible.
 
-## Starter knowledge (never begin blank)
+## Agent-native by design
 
-Every fresh vault is seeded with **one unified pack: `starter`, 4,808
-facts**, Ed25519-signed, shipped with precomputed vectors (install does
-zero embedding work). Its single editable source is
-[`tools/starter/starter_facts.jsonl`](tools/starter/starter_facts.jsonl):
-one JSON fact per line, readable and editable by hand. Exact contents:
+engRAM is built to sit under agents you already use, not as a separate
+app you babysit.
 
-- **260 general facts** (ids `core-*`, the frozen `selftest` corpus):
-  60 world capitals · 30 chemical elements (symbol + atomic number) ·
-  30 unit conversions · 30 historical dates · 40 science · 30 geography ·
-  20 math · 20 astronomy.
-- **4,394 pragmatic facts** (ids `akc-*`, from the
-  [Artificial Knowledge Collection 6.0](https://github.com/MaxFreedomPollard/artificial-knowledge-collection-6.0),
-  compilation CC BY-SA 4.0): 434 real-world measurements with ranges ·
-  415 CODATA physical constants · 1,706 country facts (capital,
-  population, area, government, languages, life expectancy for 261
-  countries) · 645 named physical features · 594 element/planet/moon/
-  constellation facts · 600 common-food nutrition facts.
-- **153 operating-system facts** (ids `macos-*`, `windows-*`, `linux-*`),
-  all platforms on every install: Windows registry hives and keys
-  (HKLM/HKCU/HKCR, Run/Uninstall/Services), %APPDATA%-family paths,
-  NTFS/FAT32/exFAT, reg/sfc/DISM/winget · macOS APFS, ~/Library, launchd,
-  codesign/spctl/defaults, SIP/Gatekeeper/TCC · Linux FHS, systemd,
-  apt/dnf/pacman, permission bits.
+- **Hermes native provider** - shows up in `hermes memory setup` with
+  **"no setup needed"**. Turns sync automatically; search injects only
+  what is relevant, tagged as data not instructions.
+- **Claude over MCP** - one `integrate claude` step registers the server
+  and gives you the Desktop config block plus a CLAUDE.md line so memory
+  is part of normal work.
+- **OpenClaw and any MCP client** - same stdio server, zero open ports,
+  same tools (`memory_search`, `memory_store`, `memory_forget`, lock).
+- **CLI for everything else** - scripts, cron, other agents: `engram
+  store`, `engram search`, `engram forget`, `engram lock`.
+- **Panic lock from the agent** - `memory_lock` / `engram lock` clears
+  stored credentials instantly when you need the vault closed now.
+- **One vault, many hosts** - Hermes, Claude, and the CLI can share a
+  vault at once; each caller gets its own identity and namespace ACLs.
 
-To change what ships: edit `starter_facts.jsonl`, run
-`python tools/build_starter_pack.py`, done - every line is re-embedded and
-the pack re-signed ([PACKS.md](PACKS.md)). Grow a live vault directly with
-`engram store` / `engram import`.
+Day to day, the point is simple: the agent remembers *you*, your
+decisions, and your machine - encrypted, offline, and fast - without a
+cloud account or a second dashboard.
 
 ## The lock model
 
@@ -238,5 +229,4 @@ engram --vault memory.vault unlock     # passphrase or recovery phrase
 
 ## License
 
-MIT. Starter-pack contents carry their stated licenses
-(`akc-pragmatic`: compilation CC BY-SA 4.0).
+MIT.

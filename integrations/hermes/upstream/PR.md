@@ -46,5 +46,5 @@ guidance.
   tokenizers, numpy, usearch, mcp), no daemon, no network at runtime.
 - Lead with what it adds over existing providers: the only bundled
   option with no API key and no cloud; encrypted at rest including
-  vectors; locked-by-default after power loss; starter knowledge so
+  vectors; locked-by-default after power loss; offline by default so
   memory works before the first conversation.

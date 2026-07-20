@@ -260,7 +260,7 @@ class engRAMMemoryProvider(MemoryProvider):
         vault = _vault_path()
         if not os.path.exists(vault):
             print(f"  No vault yet at {vault}.")
-            print("  Create one (installs the starter knowledge, then stays "
+            print("  Create one (then stays "
                   "unlocked\n  until reboot):")
             print("      engram init")
         else:

@@ -40,17 +40,17 @@ their text, so treating vectors as non-sensitive (as most systems do) is a
 hole; engRAM doesn't have it.
 
 New memories land in the writing agent's namespace (e.g. `hermes`), in the
-same vault and the same searchable index as the starter pack
-(`packs/starter`) - one vector space, searched together. Pack
-namespaces stay read-only, so curated knowledge is never diluted by chat
-traffic, and living memory never has to be shipped to be shared.
+same vault and the same searchable index as any installed pack namespaces
+- one vector space, searched together. Pack namespaces stay read-only, so
+curated content is never diluted by chat traffic, and living memory never
+has to be shipped to be shared.
 
 ### Nothing embeds twice
 
-Install time is the one moment most systems spend minutes embedding a
-starter corpus - engRAM spends zero, because memory packs ship their
-vectors precomputed, bit-exact for the pinned model. Runtime embedding
-happens exactly once per new memory, forever cached inside the vault.
+Runtime embedding happens exactly once per new memory, forever cached
+inside the vault under the pinned model. Optional signed packs can ship
+precomputed vectors bit-exact for that model (see [PACKS.md](../PACKS.md));
+that is an authoring path, not something you configure day to day.
 
 ## 2. How engRAM decides what becomes a memory
 

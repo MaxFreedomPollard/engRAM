@@ -58,7 +58,7 @@ manual steps, for reference:
 python -m pip install engram-vault
 # 2. the provider plugin (from this repo)
 cp -r integrations/hermes/engram ~/.hermes/plugins/engram
-# 3. a vault (once) - seeds 4,807 starter facts, stays unlocked until reboot
+# 3. a vault (once) - stays unlocked until reboot
 engram init
 # 4. SELECT IT
 hermes memory setup
