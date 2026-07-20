@@ -64,14 +64,15 @@ pipeline (crypto → store → embed → index → hybrid search) works, offline
 
 ## How it remembers
 
-The full write path, the three-stage write-decision math (triviality
-filter → durability signals → novelty gate), and the argument for why this
-design beats cloud memory, ANN-everywhere local stores, and turn-logging
-is in **[docs/MEMORY.md](docs/MEMORY.md)**. The one-line version: storage
-grows with unique information rather than turn count, retrieval is exact
-(recall = 1.0) at personal scale, and the host agent's own model curates
-explicitly through `nucleus_store` / `nucleus_forget` — Nucleus never
-calls an LLM itself.
+The full write path, the importance-tier math, and the argument for why
+this design beats cloud memory, ANN-everywhere local stores, and
+turn-logging is in **[docs/MEMORY.md](docs/MEMORY.md)**. The one-line
+version: Nucleus stores nearly everything (a bare "OK" answering "may I
+edit the registry?" is a consent decision, captured with its question),
+ranks recall by relevance plus importance so decisions and personal facts
+surface first, retrieval is exact (recall = 1.0) at personal scale, and
+the host agent's own model curates explicitly through `nucleus_store` /
+`nucleus_forget` — Nucleus never calls an LLM itself.
 
 ## The lock model
 
