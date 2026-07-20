@@ -3,13 +3,30 @@
 **High-security, fully offline, encrypted vector memory for AI agents.**
 
 The default install never touches the network — **not even once**. The
-embedding model ships inside the package; a built-in seed knowledge pack
-proves the whole pipeline works the minute install finishes; and every byte
-at rest is AEAD-encrypted. Your agent's memory locks into a single portable
-`.vault` file for transfer.
+embedding model ships inside the package; **thousands of starter facts ship
+with it as ready-made vector memory** (so agents never begin blank); and
+every byte at rest is AEAD-encrypted. Your agent's memory locks into a
+single portable `.vault` file for transfer.
 
-Works with any MCP-capable host — Hermes, OpenClaw, Claude Code, Claude
-Desktop, and anything else that speaks MCP or can shell out to a CLI.
+Works on **macOS, Windows, and Linux**, and with any MCP-capable host —
+Hermes (as a native, selectable memory provider), OpenClaw, Claude Code,
+Claude Desktop, and anything else that speaks MCP or can shell out to a CLI.
+
+## Starter knowledge (never begin blank)
+
+Every install is seeded with signed, precomputed-vector fact packs — no
+embedding work at install time, working recall in seconds:
+
+| Pack | Facts | Contents |
+|---|---|---|
+| `core-facts` | 260 | capitals, elements, dates, science, math, astronomy — the frozen `selftest` corpus |
+| `akc-pragmatic` | ~4,400 | measurements, physical constants, country facts, elements, planets/moons/constellations, common-food nutrition — from the Artificial Knowledge Collection 6.0 (compilation CC BY-SA 4.0) |
+| `os-macos` / `os-windows` / `os-linux` | ~50 each | pure OS facts — paths, commands, Windows registry hives/keys, versions, conventions |
+
+**The OS pack is chosen automatically for the platform you install on** —
+a Windows install gets `os-windows` (registry facts and all), a Mac gets
+`os-macos`, Linux gets `os-linux`. Around **4,700 facts** on a fresh
+install, all searchable by meaning.
 
 *In atomic physics, the nucleus holds nearly all the mass. In the brain, a
 nucleus is a cluster of neurons. In a cell, the nucleus stores the genome —
@@ -73,24 +90,39 @@ open app:
 - macOS users who *want* unlock to survive reboots can opt in explicitly
   with `nucleus unlock --keychain` (tradeoff documented in SECURITY.md).
 
-## Hermes: native memory provider
-
-Nucleus plugs into Hermes as a first-class memory provider — selected the
-same way as Hindsight or Mem0, with automatic recall before each turn,
-automatic encrypted persistence of each turn, and `nucleus_search` /
-`nucleus_store` / `nucleus_forget` agent tools:
+## Installers (one per platform)
 
 ```bash
-# 1. install nucleus into the Hermes venv
-~/.hermes/hermes-agent/venv/bin/python -m pip install nucleus-vault
+install/install-macos.sh      # macOS
+install/install-linux.sh      # Linux
+install/install-windows.ps1   # Windows (PowerShell)
+```
+
+Each installs the package (`pip install nucleus-vault`), creates and unlocks
+a vault seeded with the starter knowledge **including that platform's OS
+fact pack**, and prints the Hermes step. It is one cross-platform codebase;
+the installer simply runs the right steps and the correct OS pack is picked
+automatically.
+
+## Hermes: native, selectable memory provider
+
+Nucleus appears in the `hermes memory setup` picker as a first-class
+option, right alongside Hindsight and Mem0 — and it's the only one marked
+**"no setup needed"** (no API key, fully local). Selecting it wires
+everything up; you then get automatic recall before each turn, automatic
+encrypted persistence, and `nucleus_search` / `nucleus_store` /
+`nucleus_forget` agent tools.
+
+```bash
+# 1. install nucleus into the Hermes environment
+python -m pip install nucleus-vault
 # 2. install the provider plugin
 cp -r integrations/hermes/nucleus ~/.hermes/plugins/nucleus
 # 3. create + unlock your vault (once)
 nucleus init
-# 4. select it
-#    ~/.hermes/config.yaml →  memory:
-#                               provider: nucleus
-hermes memory status        # → Provider: nucleus, available ✓
+# 4. select it in the picker
+hermes memory setup           # arrow-key list → choose "nucleus"
+hermes memory status          # → Provider: nucleus, available ✓
 ```
 
 ## Hooking up any other agent (MCP)

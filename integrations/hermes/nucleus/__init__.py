@@ -216,6 +216,45 @@ class NucleusMemoryProvider(MemoryProvider):
         except Exception as exc:
             return json.dumps({"error": type(exc).__name__, "message": str(exc)})
 
+    # -- setup wizard integration --------------------------------------------
+
+    def get_config_schema(self):
+        # No secrets, no network config → the picker shows "no setup needed".
+        return []
+
+    def post_setup(self, hermes_home: str, config: dict) -> None:
+        """Called by `hermes memory setup` when the user selects Nucleus in
+        the provider picker. Verifies the package, ensures a vault exists,
+        writes memory.provider=nucleus, and prints the unlock reminder."""
+        from hermes_cli.config import save_config
+        print("\n  Nucleus — high-security, fully offline, encrypted vector memory")
+        try:
+            import nucleus  # noqa: F401
+        except ImportError:
+            print("  ⚠ The 'nucleus-vault' package is not installed in this "
+                  "environment.\n    Install it, then re-run `hermes memory setup`:")
+            print("      python -m pip install nucleus-vault")
+            return
+        vault = _vault_path()
+        if not os.path.exists(vault):
+            print(f"  No vault yet at {vault}.")
+            print("  Create one (installs the starter knowledge, then stays "
+                  "unlocked\n  until reboot):")
+            print("      nucleus init")
+        else:
+            print(f"  Using existing vault: {vault}")
+            try:
+                from nucleus.vault import Vault
+                Vault.resolve_credential(vault)
+                print("  Vault is unlocked and ready.")
+            except Exception:
+                print("  Vault is locked (locked-by-default). Unlock it with:")
+                print("      nucleus unlock")
+        config.setdefault("memory", {})["provider"] = "nucleus"
+        save_config(config)
+        print("\n  ✓ Memory provider set to: nucleus")
+        print("  Saved to config.yaml\n")
+
     # -- optional hooks -------------------------------------------------------
 
     def on_session_switch(self, new_session_id: str, **kwargs) -> None:

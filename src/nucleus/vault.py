@@ -12,7 +12,6 @@ from __future__ import annotations
 
 import base64
 import datetime
-import fcntl
 import json
 import os
 import platform
@@ -24,6 +23,7 @@ import uuid
 import numpy as np
 
 from . import audit, crypto, vaultfile
+from .platforms import FileLock
 from .acl import AclError, VaultConfig
 from .crypto import CryptoError, TamperError
 from .embed import DEFAULT_MODEL, Embedder
@@ -95,29 +95,16 @@ class Vault:
 
     def _with_file_lock(self, fn, timeout: float = 10.0):
         """Advisory single-writer lock: serializes journal appends and saves
-        across processes sharing one vault (Hermes + Claude + CLI)."""
-        with open(self.path + ".flock", "w") as lf:
-            deadline = time.time() + timeout
-            while True:
-                try:
-                    fcntl.flock(lf, fcntl.LOCK_EX | fcntl.LOCK_NB)
-                    break
-                except OSError:
-                    if time.time() > deadline:
-                        raise CryptoError(
-                            "Vault is busy: another process holds the write "
-                            "lock (waited 10s)")
-                    time.sleep(0.05)
-            try:
-                if self.is_stale():
-                    raise VaultStaleError(
-                        "Vault file changed on disk (another process wrote "
-                        "to it). Reopen the vault and retry.")
-                out = fn()
-                self._disk_state = self._stat_disk()
-                return out
-            finally:
-                fcntl.flock(lf, fcntl.LOCK_UN)
+        across processes sharing one vault (Hermes + Claude + CLI).
+        Cross-platform via platforms.FileLock (POSIX flock / Windows msvcrt)."""
+        with FileLock(self.path + ".flock", timeout=timeout):
+            if self.is_stale():
+                raise VaultStaleError(
+                    "Vault file changed on disk (another process wrote "
+                    "to it). Reopen the vault and retry.")
+            out = fn()
+            self._disk_state = self._stat_disk()
+            return out
 
     # ---------------------------------------------------------------- create
 

@@ -39,11 +39,31 @@ def _open_vault(args) -> Vault:
     return Vault.unlock(args.vault, passphrase=pw, raw_key=key)
 
 
+def _data_dir() -> Path:
+    return Path(__file__).resolve().parent / "data"
+
+
+def _pack_bytes(name: str) -> bytes | None:
+    p = _data_dir() / f"{name}.mpack"
+    return p.read_bytes() if p.is_file() else None
+
+
 def _seed_pack_bytes() -> bytes:
-    p = Path(__file__).resolve().parent / "data" / "core-facts.mpack"
-    if not p.is_file():
+    b = _pack_bytes("core-facts")
+    if b is None:
         raise CryptoError("Bundled core-facts.mpack is missing from this install")
-    return p.read_bytes()
+    return b
+
+
+def _starter_pack_names() -> list[str]:
+    """Packs auto-installed at init: the core seed, the pragmatic AKC
+    knowledge, and the fact pack for THIS operating system."""
+    from .platforms import current_os_pack
+    names = ["core-facts", "akc-pragmatic"]
+    os_pack = current_os_pack()
+    if os_pack:
+        names.append(os_pack)
+    return names
 
 
 def _print(obj) -> None:
@@ -73,10 +93,16 @@ def cmd_init(args) -> None:
     for i in range(0, 16, 4):
         print("   " + "  ".join(f"{j+1:2d}.{words[j]}" for j in range(i, i + 4)))
     print("=" * 60)
-    print("\nInstalling bundled core-facts seed pack…")
-    out = packs.install_pack(v, _seed_pack_bytes(), caller=args.creator)
-    print(f"  installed {out['name']}@{out['version']}: {out['records']} records "
-          f"(precomputed vectors: {out['used_precomputed_vectors']})")
+    print("\nInstalling bundled starter knowledge (precomputed vectors, offline)…")
+    total = 0
+    for name in _starter_pack_names():
+        blob = _pack_bytes(name)
+        if blob is None:
+            continue
+        out = packs.install_pack(v, blob, caller=args.creator)
+        total += out["records"]
+        print(f"  {out['name']}@{out['version']}: {out['records']} facts")
+    print(f"  → {total} starter facts installed as vector memory")
     if args.keychain:
         if sys.platform != "darwin":
             _die("--keychain is only available on macOS")

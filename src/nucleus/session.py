@@ -21,15 +21,13 @@ from __future__ import annotations
 import hashlib
 import json
 import os
-import platform
-import re
 import socket
 import stat
-import subprocess
 from pathlib import Path
 
 from . import crypto
 from .crypto import CryptoError, TamperError
+from .platforms import boot_time
 
 
 def _session_dir() -> Path:
@@ -41,24 +39,15 @@ def _session_dir() -> Path:
 
 
 def _boot_time() -> str:
-    """Seconds-since-epoch of the current boot. Changes on every restart."""
-    if platform.system() == "Darwin":
-        out = subprocess.run(["sysctl", "-n", "kern.boottime"],
-                             capture_output=True, text=True, check=True).stdout
-        m = re.search(r"sec = (\d+)", out)
-        if not m:
-            raise CryptoError("Cannot determine boot time (kern.boottime)")
-        return m.group(1)
-    # Linux
-    try:
-        with open("/proc/stat") as f:
-            for line in f:
-                if line.startswith("btime "):
-                    return line.split()[1].strip()
-    except OSError:
-        pass
-    raise CryptoError("Cannot determine boot time on this platform; "
-                      "use --keychain (macOS) or NUCLEUS_PASSPHRASE instead")
+    """Seconds-since-epoch of the current boot. Changes on every restart.
+    Cross-platform (macOS sysctl / Linux /proc / Windows GetTickCount64)."""
+    return boot_time()
+
+
+def _uid() -> str:
+    # os.getuid() is POSIX-only; on Windows fall back to the username.
+    getuid = getattr(os, "getuid", None)
+    return str(getuid()) if getuid else os.environ.get("USERNAME", "user")
 
 
 def _boot_key() -> bytes:
@@ -66,7 +55,7 @@ def _boot_key() -> bytes:
     token = "|".join((
         "nucleus-session-v1",
         _boot_time(),
-        str(os.getuid()),
+        _uid(),
         socket.gethostname(),
     ))
     return hashlib.sha256(token.encode()).digest()
