@@ -30,6 +30,11 @@ _state: dict = {"vault": None, "path": None, "caller": "unknown",
 
 def _vault() -> Vault:
     v = _state["vault"]
+    if v is not None and not v._locked and v.is_stale():
+        # another process (Hermes provider, CLI, another host) wrote the
+        # vault — reload so we operate on current state
+        _state["vault"] = None
+        v = None
     if v is None or v._locked:
         # try silent re-unlock via keychain/env (user intent persists until
         # `nucleus lock` clears the credential)
@@ -142,10 +147,12 @@ def memory_lock() -> str:
     v = _state["vault"]
     if v is not None and not v._locked:
         v.lock()
+    from . import session
     from .vault import keychain_clear
+    session.clear(_state["path"])
     keychain_clear(_state["path"])
-    return json.dumps({"locked": True, "note": "credential cleared; run `nucleus "
-                       "unlock` on the machine to re-enable access"})
+    return json.dumps({"locked": True, "note": "all stored credentials cleared; "
+                       "run `nucleus unlock` on the machine to re-enable access"})
 
 
 @mcp.tool()

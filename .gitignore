@@ -14,4 +14,5 @@ build/
 # local vaults and scratch (vaults are user data, not source)
 *.vault
 *.vault.config.json
+*.vault.flock
 nucleus-airgap.zip

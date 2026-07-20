@@ -56,7 +56,11 @@ class Store:
     def __init__(self, image: bytes | None = None):
         # Autocommit: the DB lives only in RAM — durability comes from the
         # vault's own AEAD journal, and VACUUM (crypto-shred) needs no open tx.
-        self.conn = sqlite3.connect(":memory:", isolation_level=None)
+        # check_same_thread=False: background writers (Hermes provider,
+        # auto-lock) may touch the connection; Vault serializes all access
+        # behind its operation lock.
+        self.conn = sqlite3.connect(":memory:", isolation_level=None,
+                                    check_same_thread=False)
         self.conn.row_factory = sqlite3.Row
         if image is not None:
             self.conn.deserialize(image)

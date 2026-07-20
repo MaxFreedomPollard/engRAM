@@ -45,7 +45,44 @@ nucleus search "when does the staging password rotate"
 `selftest` output ends with `"failed": 0` — that is your proof the entire
 pipeline (crypto → store → embed → index → hybrid search) works, offline.
 
-## Hooking up your agent (MCP)
+## The lock model
+
+Locked by default, like all real encryption — but unlocked feels like an
+open app:
+
+- **Unlock once** (`nucleus unlock`, or automatically at `init`) → the vault
+  stays continuously usable — through logouts and logins, for weeks or
+  months, across every process that opens it.
+- **Restart or power loss → locked again.** The stored credential is the
+  master key wrapped by a key derived from the kernel's boot timestamp; a
+  new boot can never open the old wrap, so the credential dies with the
+  power. Enter the passphrase once after each boot and you're back.
+- **`nucleus lock`** (or the `memory_lock` panic tool from any agent) locks
+  immediately and clears every stored credential.
+- macOS users who *want* unlock to survive reboots can opt in explicitly
+  with `nucleus unlock --keychain` (tradeoff documented in SECURITY.md).
+
+## Hermes: native memory provider
+
+Nucleus plugs into Hermes as a first-class memory provider — selected the
+same way as Hindsight or Mem0, with automatic recall before each turn,
+automatic encrypted persistence of each turn, and `nucleus_search` /
+`nucleus_store` / `nucleus_forget` agent tools:
+
+```bash
+# 1. install nucleus into the Hermes venv
+~/.hermes/hermes-agent/venv/bin/python -m pip install nucleus-vault
+# 2. install the provider plugin
+cp -r integrations/hermes/nucleus ~/.hermes/plugins/nucleus
+# 3. create + unlock your vault (once)
+nucleus init
+# 4. select it
+#    ~/.hermes/config.yaml →  memory:
+#                               provider: nucleus
+hermes memory status        # → Provider: nucleus, available ✓
+```
+
+## Hooking up any other agent (MCP)
 
 Unlock once on the machine (`nucleus unlock --keychain` on macOS, or set
 `NUCLEUS_PASSPHRASE`), then point your host at `nucleus serve`. stdio
@@ -76,13 +113,18 @@ Tools exposed: `memory_store`, `memory_search`, `memory_get`,
 `memory_status`, `memory_selftest`, `memory_lock` (panic lock),
 `memory_unlock` (disabled by default — see SECURITY.md).
 
-## Lock, transfer, unlock
+## Transfer
 
 ```bash
 nucleus lock                        # clear credentials; vault is one sealed file
 scp ~/.nucleus/memory.vault other-machine:   # safe over any channel
 nucleus --vault memory.vault unlock          # passphrase or 16-word recovery phrase
 ```
+
+One vault can serve several agents at once (Hermes + Claude + CLI): writes
+are serialized by an advisory file lock, every process detects when another
+one has written and reloads, and per-caller namespace ACLs keep each
+agent's memories separated.
 
 A locked vault is a single AEAD-sealed file: an interceptor gets nothing,
 and any modification — even one bit — makes unlock fail loudly. `nucleus

@@ -12,10 +12,12 @@ from __future__ import annotations
 
 import base64
 import datetime
+import fcntl
 import json
 import os
 import platform
 import subprocess
+import threading
 import time
 import uuid
 
@@ -45,6 +47,21 @@ class VaultLockedError(CryptoError):
     pass
 
 
+class VaultStaleError(CryptoError):
+    """Another process wrote the vault; the caller should reopen and retry."""
+
+
+def _synchronized(fn):
+    """Serialize vault operations: the in-RAM SQLite connection and index are
+    shared with background threads (Hermes provider writer, auto-lock)."""
+    def wrapper(self, *args, **kwargs):
+        with self._oplock:
+            return fn(self, *args, **kwargs)
+    wrapper.__name__ = fn.__name__
+    wrapper.__doc__ = fn.__doc__
+    return wrapper
+
+
 class Vault:
     # ------------------------------------------------------------------ init
 
@@ -56,10 +73,51 @@ class Vault:
         self._master = master_key
         self.config = config
         self._journal_seq = 0
+        self._oplock = threading.RLock()
         self._embedder: Embedder | None = None
         self._locked = False
         self._id_by_ikey: dict[int, str] = {}
+        self._disk_state: tuple[int, int] | None = None
+        if os.path.exists(path):
+            self._disk_state = self._stat_disk()
         self._rebuild_index()
+
+    # -------------------------------------------------- multi-process safety
+
+    def _stat_disk(self) -> tuple[int, int]:
+        st = os.stat(self.path)
+        return (st.st_mtime_ns, st.st_size)
+
+    def is_stale(self) -> bool:
+        """True if another process wrote the vault file since we read it."""
+        return (self._disk_state is not None and os.path.exists(self.path)
+                and self._stat_disk() != self._disk_state)
+
+    def _with_file_lock(self, fn, timeout: float = 10.0):
+        """Advisory single-writer lock: serializes journal appends and saves
+        across processes sharing one vault (Hermes + Claude + CLI)."""
+        with open(self.path + ".flock", "w") as lf:
+            deadline = time.time() + timeout
+            while True:
+                try:
+                    fcntl.flock(lf, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                    break
+                except OSError:
+                    if time.time() > deadline:
+                        raise CryptoError(
+                            "Vault is busy: another process holds the write "
+                            "lock (waited 10s)")
+                    time.sleep(0.05)
+            try:
+                if self.is_stale():
+                    raise VaultStaleError(
+                        "Vault file changed on disk (another process wrote "
+                        "to it). Reopen the vault and retry.")
+                out = fn()
+                self._disk_state = self._stat_disk()
+                return out
+            finally:
+                fcntl.flock(lf, fcntl.LOCK_UN)
 
     # ---------------------------------------------------------------- create
 
@@ -134,6 +192,7 @@ class Vault:
         v._rebuild_index()
         return v
 
+    @_synchronized
     def reembed(self, model_name: str = DEFAULT_MODEL, caller: str = "user") -> int:
         """Migrate the vault to a different embedding model: re-embed every
         record locally (fully offline) and re-pin the model. Returns count."""
@@ -164,9 +223,15 @@ class Vault:
     @staticmethod
     def resolve_credential(path: str, passphrase: str | None = None
                            ) -> tuple[str | None, bytes | None]:
-        """Resolution order: explicit passphrase → macOS Keychain → env var."""
+        """Resolution order: explicit passphrase → boot-session credential
+        (dies on restart/power loss) → macOS Keychain (explicit opt-in,
+        survives reboots) → env var."""
+        from . import session
         if passphrase:
             return passphrase, None
+        key = session.get(path)
+        if key is not None:
+            return None, key
         key = keychain_get(path)
         if key is not None:
             return None, key
@@ -174,9 +239,9 @@ class Vault:
         if env:
             return env, None
         raise CryptoError(
-            "Vault is locked and no credential is available. "
-            "Run `nucleus unlock` (optionally with --keychain on macOS), "
-            "or set NUCLEUS_PASSPHRASE."
+            "Vault is locked (locked-by-default: every restart or power loss "
+            "requires one unlock). Run `nucleus unlock` — it then stays "
+            "unlocked until the next restart or `nucleus lock`."
         )
 
     # ------------------------------------------------------------------ util
@@ -201,8 +266,10 @@ class Vault:
                                  precision=precision)
 
     def _journal(self, entry: dict) -> None:
-        vaultfile.append_journal_entry(self.path, self.header, self._journal_seq,
-                                       entry, self._master)
+        def _append():
+            vaultfile.append_journal_entry(self.path, self.header,
+                                           self._journal_seq, entry, self._master)
+        self._with_file_lock(_append)
         self._journal_seq += 1
 
     def _replay(self, e: dict) -> None:
@@ -233,6 +300,7 @@ class Vault:
 
     # ------------------------------------------------------------------ ops
 
+    @_synchronized
     def store(self, text: str, caller: str, namespace: str | None = None,
               tags: list[str] | None = None, importance: float = 0.5,
               quarantined: bool = False, pack: str | None = None,
@@ -290,6 +358,7 @@ class Vault:
                 continue
         return out
 
+    @_synchronized
     def search(self, query: str, caller: str, namespace: str | None = None,
                tags: list[str] | None = None, top_k: int = 8,
                since: float | None = None, until: float | None = None) -> dict:
@@ -349,6 +418,7 @@ class Vault:
         # documented in SECURITY.md.
         return {"results": results, "note": DATA_NOT_INSTRUCTIONS}
 
+    @_synchronized
     def get(self, record_id: str, caller: str) -> dict:
         self._require_open()
         row = self.db.get_row(record_id)
@@ -366,6 +436,7 @@ class Vault:
             out["warning"] = QUARANTINE_WARNING
         return out
 
+    @_synchronized
     def forget(self, record_id: str, caller: str, shred: bool = False) -> dict:
         self._require_open()
         row = self.db.get_row(record_id)
@@ -385,13 +456,15 @@ class Vault:
 
     # --------------------------------------------------------------- persist
 
+    @_synchronized
     def save(self, signing_key=None) -> None:
         self._require_open()
-        vaultfile.write_vault_file(self.path, self.header,
-                                   {"sqlite": self.db.serialize()},
-                                   self._master, signing_key=signing_key)
+        self._with_file_lock(lambda: vaultfile.write_vault_file(
+            self.path, self.header, {"sqlite": self.db.serialize()},
+            self._master, signing_key=signing_key))
         self._journal_seq = 0
 
+    @_synchronized
     def lock(self, signing_key=None) -> None:
         """Flush, seal, and drop key material from this process."""
         self.save(signing_key=signing_key)
@@ -402,6 +475,7 @@ class Vault:
 
     # ---------------------------------------------------------------- status
 
+    @_synchronized
     def status(self) -> dict:
         self._require_open()
         n = self.db.count()
@@ -430,6 +504,7 @@ class Vault:
 
     # ---------------------------------------------------------------- rekey
 
+    @_synchronized
     def rekey(self, new_passphrase: str) -> list[str]:
         """Replace passphrase + recovery slots; re-wrap (not re-encrypt) and save."""
         self._require_open()
@@ -444,6 +519,7 @@ class Vault:
 
     # ---------------------------------------------------------- export/import
 
+    @_synchronized
     def export_jsonl(self, caller: str = "user") -> str:
         self._require_open()
         lines = []
@@ -458,6 +534,7 @@ class Vault:
         self._audit_and_capture(caller, "export", f"{len(lines)} records")
         return "\n".join(lines) + ("\n" if lines else "")
 
+    @_synchronized
     def import_jsonl(self, text: str, caller: str = "user",
                      namespace: str | None = None) -> int:
         self._require_open()

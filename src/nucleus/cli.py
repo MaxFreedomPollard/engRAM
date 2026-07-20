@@ -14,7 +14,7 @@ import sys
 import zipfile
 from pathlib import Path
 
-from . import __version__, audit, offline_guard, packs, selftest
+from . import __version__, audit, offline_guard, packs, selftest, session
 from .acl import VaultConfig
 from .crypto import CryptoError
 from .embed import DEFAULT_MODEL, OPTIONAL_MODELS, Embedder, user_model_dir
@@ -77,12 +77,17 @@ def cmd_init(args) -> None:
     out = packs.install_pack(v, _seed_pack_bytes(), caller=args.creator)
     print(f"  installed {out['name']}@{out['version']}: {out['records']} records "
           f"(precomputed vectors: {out['used_precomputed_vectors']})")
-    if sys.platform == "darwin" and not args.no_keychain and (
-            args.keychain or _ask_yn("Enable macOS Keychain unlock (recommended)?")):
+    if args.keychain:
+        if sys.platform != "darwin":
+            _die("--keychain is only available on macOS")
         keychain_store(path, v._master)
-        print("  keychain credential stored (clear with `nucleus lock`)")
+        print("  keychain credential stored (persists across reboots)")
+    elif not args.no_session:
+        session.store(path, v._master)
+        print("  unlocked: stays open until the next restart/power loss or "
+              "`nucleus lock`")
     st = v.status()
-    v.lock() if not keychain_get(path) else v.save()
+    v.save()
     print(f"\nVault ready: {st['records']} records, projected RAM "
           f"~{st['projected_ram_mb']}MB. Run `nucleus selftest` to verify.")
 
@@ -100,11 +105,15 @@ def cmd_unlock(args) -> None:
         if sys.platform != "darwin":
             _die("--keychain is only available on macOS")
         keychain_store(args.vault, v._master)
-        print("unlocked: keychain credential stored — serve and CLI commands "
-              "will open the vault without prompting (until `nucleus lock`)")
+        print("unlocked: KEYCHAIN credential stored — persists across reboots "
+              "until `nucleus lock` (see SECURITY.md for the tradeoff)")
+    elif args.once:
+        print("credential verified for this invocation only (no credential stored)")
     else:
-        print("credential verified. Tip: --keychain (macOS) or NUCLEUS_PASSPHRASE "
-              "lets `nucleus serve` open the vault non-interactively.")
+        session.store(args.vault, v._master)
+        print("unlocked: stays unlocked continuously — through logins, for "
+              "weeks or months — until the next RESTART/power loss or "
+              "`nucleus lock`.")
     v.save()
 
 
@@ -122,10 +131,12 @@ def cmd_lock(args) -> None:
         v.lock(signing_key=packs.load_signing_key(identity))
         print(f"vault sealed + signed by {identity['signer']} "
               f"(pub {identity['pub_hex'][:16]}…); verify with `nucleus verify`")
-    cleared = keychain_clear(args.vault)
-    print(f"locked: keychain credential {'cleared' if cleared else 'not present'}. "
-          "The vault file is sealed at rest; nothing can open it without the "
-          "passphrase.")
+    cleared_session = session.clear(args.vault)
+    cleared_kc = keychain_clear(args.vault)
+    what = [n for n, c in (("session", cleared_session), ("keychain", cleared_kc)) if c]
+    print(f"locked: cleared {' + '.join(what) if what else 'no'} stored "
+          "credential(s). The vault file is sealed at rest; nothing can open "
+          "it without the passphrase.")
 
 
 def cmd_status(args) -> None:
@@ -416,13 +427,20 @@ def main(argv: list[str] | None = None) -> None:
     p = sub.add_parser("init", help="create a new vault (+ seed pack)")
     p.add_argument("--passphrase", help="non-interactive (scripting)")
     p.add_argument("--creator", default="user")
-    p.add_argument("--keychain", action="store_true")
-    p.add_argument("--no-keychain", action="store_true")
+    p.add_argument("--keychain", action="store_true",
+                   help="store a reboot-surviving Keychain credential (macOS)")
+    p.add_argument("--no-session", action="store_true",
+                   help="do not stay unlocked after init")
     p.set_defaults(fn=cmd_init)
 
-    p = sub.add_parser("unlock", help="verify credential; --keychain stores it (macOS)")
+    p = sub.add_parser(
+        "unlock",
+        help="unlock: stays open until restart/power loss or `nucleus lock`")
     p.add_argument("--passphrase")
-    p.add_argument("--keychain", action="store_true")
+    p.add_argument("--keychain", action="store_true",
+                   help="macOS Keychain instead: persists across reboots")
+    p.add_argument("--once", action="store_true",
+                   help="verify only; store no credential")
     p.set_defaults(fn=cmd_unlock)
 
     p = sub.add_parser("lock", help="clear stored credential (vault stays sealed)")

@@ -74,20 +74,43 @@ record id) — ciphertexts cannot be transplanted between contexts.
 
 ## Unlock paths, ranked
 
-1. **macOS Keychain** (`nucleus unlock --keychain`): credential guarded by
-   the OS; `nucleus serve` opens the vault without any passphrase in env,
-   argv, or agent context. Cleared by `nucleus lock` or `memory_lock`.
-2. **`NUCLEUS_PASSPHRASE` env var:** convenient; visible to anything that
-   can read the process environment.
-3. **`memory_unlock` MCP tool: DISABLED by default.** The passphrase would
+1. **Boot-session credential (the default).** `nucleus unlock` wraps the
+   master key with a key derived from the current boot's kernel timestamp
+   (plus uid + hostname) and stores it 0600 in `~/.nucleus/session/`. The
+   vault then stays continuously usable — across processes, logouts, and
+   logins, for weeks or months — and RELOCKS on any restart or power loss:
+   the new boot's derivation can never open the old wrap, and stale files
+   are deleted on sight. This is deliberately a convenience credential —
+   an attacker who can read it on the *running* machine could also read
+   process RAM; once power is lost it is dead ciphertext. (A forensic
+   caveat: the previous boot time may be recoverable from system logs, so
+   on an unencrypted disk a stolen *file pair* is theoretically weaker
+   than the passphrase. Use FileVault/FDE, which you should anyway.)
+2. **macOS Keychain** (`nucleus unlock --keychain`, explicit opt-in):
+   credential guarded by the OS keychain. Stronger against file theft than
+   the session credential, but it SURVIVES REBOOTS — choose it only if
+   that is what you want.
+3. **`NUCLEUS_PASSPHRASE` env var:** for scripts/CI; visible to anything
+   that can read the process environment.
+4. **`memory_unlock` MCP tool: DISABLED by default.** The passphrase would
    transit the agent's context window and possibly the host's logs/model
    provider. Enable only if you accept that
    (`settings.unlock_tool_enabled` in `<vault>.config.json`).
 
-Auto-lock drops the in-RAM key after `auto_lock_minutes` (default 30) of
-idle; with a Keychain credential present the next operation silently
-re-unlocks (the credential represents standing user intent — clear it with
-`nucleus lock`).
+`nucleus lock` and the `memory_lock` panic tool clear ALL stored
+credentials (session + keychain). Auto-lock drops the in-RAM key after
+`auto_lock_minutes` (default 30) idle; while a stored credential remains,
+the next operation silently re-opens — stored credentials represent
+standing user intent, ended by `nucleus lock` or a reboot.
+
+## Multi-agent, one vault
+
+Several agent processes (Hermes provider, Claude via MCP, the CLI) may
+share one vault: an advisory file lock serializes every journal append and
+save, and each process detects foreign writes (mtime/size) and reloads
+before proceeding — a stale writer gets a loud VaultStaleError, never
+silent corruption. Namespace ACLs are per-caller; `--caller` identity is
+declarative (see the hostile-host limitation above).
 
 ## Reporting
 
