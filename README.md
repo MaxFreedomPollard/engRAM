@@ -45,6 +45,17 @@ nucleus search "when does the staging password rotate"
 `selftest` output ends with `"failed": 0` — that is your proof the entire
 pipeline (crypto → store → embed → index → hybrid search) works, offline.
 
+## How it remembers
+
+The full write path, the three-stage write-decision math (triviality
+filter → durability signals → novelty gate), and the argument for why this
+design beats cloud memory, ANN-everywhere local stores, and turn-logging
+is in **[docs/MEMORY.md](docs/MEMORY.md)**. The one-line version: storage
+grows with unique information rather than turn count, retrieval is exact
+(recall = 1.0) at personal scale, and the host agent's own model curates
+explicitly through `nucleus_store` / `nucleus_forget` — Nucleus never
+calls an LLM itself.
+
 ## The lock model
 
 Locked by default, like all real encryption — but unlocked feels like an

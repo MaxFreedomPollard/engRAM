@@ -55,3 +55,30 @@ pack replaces it wholesale (semver replace, never merge).
 frozen within a major version: it is Nucleus's install-verification and
 regression corpus (`nucleus selftest`). Don't remove it unless you have a
 reason; it costs ~1MB of RAM.
+
+## Extending the starter (seed) memory
+
+The starter memory every install receives is `core-facts`, built from the
+canonical file `tools/seed/core_facts.jsonl`. To add to it:
+
+1. Append lines at the END of `tools/seed/core_facts.jsonl`, continuing
+   the id sequence:
+   ```json
+   {"id": "core-261", "text": "Your fact as one self-contained sentence.", "tags": ["core", "custom"]}
+   ```
+   Never edit or renumber `core-001`–`core-260` — they are the frozen
+   corpus behind `nucleus selftest`. (And never rerun
+   `tools/make_seed_facts.py`; it is the one-time bootstrap generator and
+   refuses to overwrite the canonical file.)
+2. Rebuild — this re-embeds every fact with the bundled model and
+   re-signs the pack, so additions become vector memory automatically:
+   ```bash
+   python tools/build_seed_pack.py 1.1.0     # arg = new pack version
+   ```
+3. Refresh an existing vault (replaces `packs/core-facts` wholesale;
+   personal namespaces untouched):
+   ```bash
+   nucleus pack install src/nucleus/data/core-facts.mpack
+   ```
+4. `nucleus selftest` (must stay 20/20), then commit. Every future
+   `nucleus init` includes your additions.

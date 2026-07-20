@@ -122,20 +122,42 @@ class NucleusMemoryProvider(MemoryProvider):
         # so a synchronous local write (~25ms embed + ~10ms sealed journal
         # append) is correct here — and nothing is lost if the process exits
         # right after the turn.
+        #
+        # What becomes a memory (see docs/MEMORY.md):
+        #   1. triviality filter  — bare acks / empty turns store nothing
+        #   2. durability signals — "remember/always/my X is/…" force the
+        #      store at raised importance
+        #   3. novelty gate       — unsignaled turns are embedded and only
+        #      stored if they ADD information (nearest-neighbor cosine
+        #      < salience.NOVELTY_THRESHOLD)
+        from nucleus import salience
         u = (user_content or "").strip()[:_TURN_CHAR_LIMIT]
         a = (assistant_content or "").strip()[:_TURN_CHAR_LIMIT]
-        if not u and not a:
+        verdict = salience.assess_turn(u, a)
+        if not verdict.store:
+            logger.debug("nucleus: turn not stored (%s)", verdict.reason)
             return
-        self._store_with_retry(f"User: {u}\nAssistant: {a}")
+        self._store_with_retry(f"User: {u}\nAssistant: {a}",
+                               importance=verdict.importance,
+                               novelty_gate=not verdict.has_signal)
 
-    def _store_with_retry(self, text: str) -> None:
+    def _store_with_retry(self, text: str, importance: float = 0.4,
+                          novelty_gate: bool = False) -> None:
+        from nucleus import salience
         from nucleus.vault import VaultStaleError
         for attempt in (1, 2):
             try:
                 v = self._open()
+                if novelty_gate:
+                    top = v.search(text, caller=_CALLER, namespace=_NAMESPACE,
+                                   top_k=1)["results"]
+                    if top and top[0]["cosine"] >= salience.NOVELTY_THRESHOLD:
+                        logger.debug("nucleus: turn not stored (novelty %.2f "
+                                     "below threshold)", 1 - top[0]["cosine"])
+                        return
                 v.store(text, caller=_CALLER, namespace=_NAMESPACE,
                         tags=["hermes", f"session:{self._session_id[:12]}"],
-                        importance=0.4)
+                        importance=importance)
                 return
             except VaultStaleError:
                 self._vault = None  # reopen and retry once

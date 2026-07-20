@@ -1,11 +1,14 @@
-"""Generate tools/seed/core_facts.jsonl — the frozen core-facts seed corpus.
+"""ONE-TIME bootstrap generator for tools/seed/core_facts.jsonl.
 
-Facts are deliberately boring, stable, and indisputable: their job is
-plumbing verification and regression benchmarking, not knowledge.
-Never modify within a major version (it is the frozen benchmark corpus).
+After the first run, tools/seed/core_facts.jsonl is the CANONICAL file:
+append new facts to it directly (new sequential ids, at the end) and
+rebuild with tools/build_seed_pack.py. Re-running this script would
+regenerate the file from the hardcoded lists below and destroy any
+hand-added facts — so it refuses to overwrite unless given --force.
 """
 import json
 import pathlib
+import sys
 
 CAPITALS = [
     ("France", "Paris"), ("Germany", "Berlin"), ("Italy", "Rome"),
@@ -256,6 +259,11 @@ for t in ASTRONOMY:
     add(t, "astronomy")
 
 out = pathlib.Path(__file__).parent / "seed" / "core_facts.jsonl"
+if out.exists() and "--force" not in sys.argv:
+    raise SystemExit(
+        f"REFUSING to overwrite {out} — that file is now canonical and may "
+        "contain hand-added facts. Append to it directly, then run "
+        "tools/build_seed_pack.py. (--force only to regenerate from scratch.)")
 out.parent.mkdir(exist_ok=True)
 with open(out, "w") as f:
     for r in records:
