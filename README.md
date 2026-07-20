@@ -4,11 +4,12 @@
 
 engRAM is the memory your AI agents plug into. Hermes, Claude, and
 OpenClaw each register in one command; anything that runs a subprocess
-can use the CLI. Everything is local. The default install never touches
-the network: the embedding model ships inside the package, so recall
-works as soon as the vault is open. Every byte at rest is AEAD-encrypted,
-the vectors included. The vault locks itself on restart or power loss and
-unlocks once per boot.
+can use the CLI. Every agent can share the same memory - even across
+different machines. Everything is local. The default install never
+touches the network: the embedding model ships inside the package, so
+recall works as soon as the vault is open. Every byte at rest is
+AEAD-encrypted, the vectors included. The vault locks itself on restart
+or power loss and unlocks once per boot.
 
 *An **engram** is the physical trace a memory leaves in the brain. This
 one lives in **RAM**: the whole index is held in memory, which is what
