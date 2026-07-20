@@ -173,19 +173,25 @@ cloud account or a second dashboard.
 
 ## The lock model
 
-Locked by default, like all real encryption, but unlocked feels like an
-open app:
+You lock and unlock the vault yourself whenever you want. Manual control
+is always available:
 
-- **Unlock once** → continuously usable through logouts and logins, for
-  weeks or months, across every process, until the next restart.
-- **Restart or power loss → locked.** The stored credential is the master
-  key wrapped by a key derived from the kernel's boot timestamp plus the
-  stable machine id; a new boot can never open the old wrap. This is
-  arithmetic, not a policy check.
-- **`engram lock`** (or the `memory_lock` panic tool from any agent)
-  locks instantly and clears every stored credential.
-- Reboot-surviving unlock is an explicit opt-in on macOS
-  (`engram unlock --keychain`), with the tradeoff documented.
+- **`engram unlock`** - open the vault (passphrase or recovery phrase).
+- **`engram lock`** - close it again and clear every stored credential.
+  Agents can do the same via the `memory_lock` panic tool.
+
+The default unlock mode is convenience, not a cage: after a normal
+unlock, the vault stays usable across processes, logouts, and logins -
+for weeks or months if you leave it that way - until the next restart or
+power loss, or until you lock it yourself. Restart/power loss always
+locks it: the stored credential is the master key wrapped by a key
+derived from the kernel's boot timestamp plus the stable machine id; a
+new boot can never open the old wrap. That is arithmetic, not a policy
+check.
+
+If you prefer reboot-surviving unlock on macOS, that is an explicit
+opt-in (`engram unlock --keychain`), with the tradeoff documented. At any
+time you can lock, unlock, lock again - on your schedule.
 
 ## Security, in one paragraph
 
