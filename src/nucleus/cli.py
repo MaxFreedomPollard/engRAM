@@ -375,6 +375,21 @@ def cmd_pack_list(args) -> None:
     _print(v.pack_list())
 
 
+def cmd_pack_export(args) -> None:
+    """Dump a .mpack's records to editable JSONL (for hand-editing, then
+    rebuilding with `nucleus pack build`)."""
+    header, records, _vectors = packs.read_pack(Path(args.file).read_bytes())
+    out = Path(args.out)
+    with open(out, "w") as f:
+        for r in records:
+            f.write(json.dumps(r, sort_keys=True, ensure_ascii=False) + "\n")
+    print(f"exported {header['name']}@{header['version']}: {len(records)} "
+          f"records → {out}")
+    print("edit the JSONL, then rebuild + re-sign with:")
+    print(f"  nucleus pack build {out} --name {header['name']} "
+          f"--version <bump> --identity <identity.json> --out <file.mpack>")
+
+
 # --------------------------------------------------------------- integrate
 
 def cmd_integrate(args) -> None:
@@ -411,6 +426,33 @@ def cmd_integrate(args) -> None:
         else:
             print("  finish selection with:  hermes memory setup nucleus")
         print("Done. Verify with:  hermes memory status")
+
+    elif target == "openclaw":
+        nucleus_bin = shutil.which("nucleus") or "nucleus"
+        entry = {"command": nucleus_bin,
+                 "args": ["--vault", vault, "--caller", "openclaw", "serve"]}
+        cfg_path = Path(os.environ.get("OPENCLAW_HOME",
+                                       Path.home() / ".openclaw")) / "openclaw.json"
+        wrote = False
+        if cfg_path.is_file():
+            try:
+                cfg = json.loads(cfg_path.read_text())
+                backup = cfg_path.with_suffix(".json.bak-nucleus")
+                backup.write_text(cfg_path.read_text())
+                cfg.setdefault("mcpServers", {})["nucleus"] = entry
+                cfg_path.write_text(json.dumps(cfg, indent=2))
+                wrote = True
+                print(f"✓ registered in {cfg_path} (backup: {backup.name})")
+                print("  restart to load:  openclaw gateway restart")
+                print("  verify:           openclaw mcp list")
+            except (json.JSONDecodeError, OSError) as exc:
+                print(f"  could not edit {cfg_path} automatically ({exc});")
+        if not wrote:
+            print("  add this under \"mcpServers\" in ~/.openclaw/openclaw.json, "
+                  "then run `openclaw gateway restart`:")
+            print(json.dumps({"nucleus": entry}, indent=2))
+        if not os.path.exists(vault):
+            print(f"\n! no vault at {vault} — run `nucleus init` to create one")
 
     elif target == "claude":
         nucleus_bin = shutil.which("nucleus") or "nucleus"
@@ -630,10 +672,14 @@ def main(argv: list[str] | None = None) -> None:
     p.set_defaults(fn=cmd_pack_remove)
     p = pp_sub.add_parser("list")
     p.set_defaults(fn=cmd_pack_list)
+    p = pp_sub.add_parser("export", help="dump a .mpack to editable JSONL")
+    p.add_argument("file")
+    p.add_argument("out")
+    p.set_defaults(fn=cmd_pack_export)
 
     p = sub.add_parser("integrate",
-                       help="one-command wiring into hermes or claude")
-    p.add_argument("target", choices=["hermes", "claude"])
+                       help="one-command wiring into claude, hermes, or openclaw")
+    p.add_argument("target", choices=["claude", "hermes", "openclaw"])
     p.set_defaults(fn=cmd_integrate)
 
     ps = sub.add_parser("setup", help="models + air-gap bundles")

@@ -17,36 +17,50 @@ the cell's memory. This one stores your agent's.*
 
 ## Install
 
-**Hermes** (macOS / Linux):
-```bash
-pip install nucleus-vault && nucleus init && nucleus integrate hermes
-```
-**Hermes** (Windows, PowerShell):
-```powershell
-py -m pip install nucleus-vault; nucleus init; nucleus integrate hermes
-```
-`integrate hermes` installs the provider plugin, wires the Hermes venv,
-and runs `hermes memory setup nucleus`. Nucleus then shows in
-`hermes memory status` as the active provider, and in the
-`hermes memory setup` picker beside hindsight and mem0, the only entry
-marked **"no setup needed"**: no API key, no cloud account, no daemon.
+One command per platform. Each installs the package, creates your
+encrypted vault preloaded with the starter knowledge, and wires the agent.
 
-**Claude Code / Claude Desktop** (macOS / Linux):
+**Claude (Code + Desktop)** — macOS / Linux:
 ```bash
 pip install nucleus-vault && nucleus init && nucleus integrate claude
 ```
-**Claude** (Windows, PowerShell):
+Windows (PowerShell):
 ```powershell
 py -m pip install nucleus-vault; nucleus init; nucleus integrate claude
 ```
-`integrate claude` registers the MCP server with the Claude Code CLI
-(user scope, all projects) and prints the Claude Desktop config block plus
-the one-line CLAUDE.md instruction that makes Claude treat Nucleus as its
-memory.
+Registers the MCP server with the Claude Code CLI (user scope, all
+projects), prints the Claude Desktop config block, and prints the one-line
+CLAUDE.md instruction that makes Claude treat Nucleus as its memory.
+
+**Hermes** — macOS / Linux:
+```bash
+pip install nucleus-vault && nucleus init && nucleus integrate hermes
+```
+Windows (PowerShell):
+```powershell
+py -m pip install nucleus-vault; nucleus init; nucleus integrate hermes
+```
+Installs the provider plugin, wires the Hermes venv, and runs
+`hermes memory setup nucleus`. Nucleus then appears in the
+`hermes memory setup` picker beside hindsight and mem0, the only entry
+marked **"no setup needed"**: no API key, no cloud account, no daemon.
+Verify with `hermes memory status`.
+
+**OpenClaw** — macOS / Linux:
+```bash
+pip install nucleus-vault && nucleus init && nucleus integrate openclaw
+```
+Windows (PowerShell):
+```powershell
+py -m pip install nucleus-vault; nucleus init; nucleus integrate openclaw
+```
+Writes the `mcpServers` entry into `~/.openclaw/openclaw.json` (with a
+backup), then: `openclaw gateway restart` and confirm with
+`openclaw mcp list`.
 
 Anything else that speaks MCP gets the same server with one config block;
 see [docs/INTEGRATIONS.md](docs/INTEGRATIONS.md). Until the PyPI release,
-replace `pip install nucleus-vault` with a clone + `pip install .` —
+replace `pip install nucleus-vault` with a clone + `pip install .`;
 everything else is identical.
 
 ## Measured, on an 8 GB baseline laptop
@@ -107,16 +121,39 @@ offline guarantee absolute and every decision reproducible.
 
 ## Starter knowledge (never begin blank)
 
-| Pack | Facts | Contents |
-|---|---|---|
-| `core-facts` | 260 | capitals, elements, dates, science, math, astronomy; the frozen `selftest` corpus |
-| `akc-pragmatic` | ~4,400 | measurements, physical constants, country facts, elements, planets/moons/constellations, common-food nutrition; from the Artificial Knowledge Collection 6.0 (compilation CC BY-SA 4.0) |
-| `os-macos` / `os-windows` / `os-linux` | ~50 each | pure OS facts: paths, commands, Windows registry hives and keys, versions, conventions |
+Every fresh vault is seeded with **4,703 facts** (on macOS; 4,707 on
+Windows, 4,705 on Linux), all Ed25519-signed and shipped with precomputed
+vectors, so install does zero embedding work. Exact contents:
 
-The OS pack is selected automatically for the platform you install on. All
-packs are Ed25519-signed and carry precomputed vectors, so installs do no
-embedding work. Build your own with `nucleus pack build`
-([PACKS.md](PACKS.md)).
+**`core-facts` — 260 facts** (the frozen `selftest` corpus):
+60 world capitals · 30 chemical elements (symbol + atomic number) ·
+30 unit conversions · 30 historical dates · 40 science facts ·
+30 geography facts · 20 math facts · 20 astronomy facts.
+
+**`akc-pragmatic` — 4,394 facts** (from the
+[Artificial Knowledge Collection 6.0](https://github.com/MaxFreedomPollard/artificial-knowledge-collection-6.0),
+compilation CC BY-SA 4.0):
+434 real-world measurements (typical mass/size/speed of things, with
+ranges) · 415 CODATA physical constants · 1,706 country facts (capital,
+population, area, government, languages, life expectancy, region for 261
+countries) · 645 named physical features (lakes, rivers, deserts) ·
+594 element/astronomy facts (118 elements with properties, planets,
+moons, the 88 constellations) · 600 common-food nutrition facts (kcal,
+protein, fat per 100 g).
+
+**One OS pack, auto-selected for your platform:**
+`os-windows` (53 facts: registry hives HKLM/HKCU/HKCR/HKU/HKCC, the
+Run/Uninstall/Services keys, hive backing files, `%APPDATA%`-family
+paths, System32/SysWOW64, NTFS/FAT32/exFAT, reg/sfc/DISM/winget,
+versions and builds) · `os-macos` (49 facts: APFS, `~/Library` layout,
+launchd, codesign/spctl/defaults/launchctl, SIP/Gatekeeper/TCC/FileVault,
+shortcuts) · `os-linux` (51 facts: FHS paths, /etc files, systemd,
+apt/dnf/pacman/zypper, permission bits, core commands).
+
+Add your own facts before or after install (see
+[PACKS.md](PACKS.md)): `nucleus pack export` dumps any shipped pack to
+editable JSONL, `nucleus pack build` re-signs it, and `nucleus store` /
+`nucleus import` grow the live vault directly.
 
 ## The lock model
 

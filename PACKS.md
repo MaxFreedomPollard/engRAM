@@ -82,3 +82,28 @@ canonical file `tools/seed/core_facts.jsonl`. To add to it:
    ```
 4. `nucleus selftest` (must stay 20/20), then commit. Every future
    `nucleus init` includes your additions.
+
+## Hand-editing the shipped starter packs
+
+Every shipped pack can be dumped to plain JSONL, edited in any text
+editor, and re-signed:
+
+```bash
+# 1. dump to editable JSONL
+nucleus pack export src/nucleus/data/akc-pragmatic.mpack akc.jsonl
+# 2. edit akc.jsonl by hand (one {"id","text","tags"} object per line —
+#    delete lines, fix wording, append new facts with new ids)
+# 3. rebuild + re-sign into the package
+nucleus pack build akc.jsonl --name akc-pragmatic --version 1.0.1 \
+    --identity tools/pack_identity.json \
+    --out src/nucleus/data/akc-pragmatic.mpack
+# 4. refresh your own vault + verify
+nucleus pack install src/nucleus/data/akc-pragmatic.mpack
+nucleus selftest
+```
+
+The same workflow applies to the OS packs. For `core-facts`, edit
+`tools/seed/core_facts.jsonl` directly (append-only; ids core-001..260
+are frozen for selftest) and rebuild with `tools/build_seed_pack.py`.
+Rebuilding re-embeds every line with the bundled model, so hand-added
+text becomes vector memory automatically.

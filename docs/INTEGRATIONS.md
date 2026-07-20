@@ -7,11 +7,51 @@ that can run a subprocess). Nucleus supports all three from one install.
 
 ---
 
+## Claude (Code and Desktop) — MCP registration IS the selector
+
+Claude has no memory-provider picker; registering an MCP server is how you
+give Claude a memory. One command does everything:
+
+```bash
+pip install nucleus-vault && nucleus init && nucleus integrate claude
+```
+
+Or manually (Claude Code):
+
+```bash
+claude mcp add --scope user nucleus -- \
+    nucleus --vault ~/.nucleus/memory.vault --caller claude-code serve
+```
+
+Claude Desktop (`claude_desktop_config.json`):
+
+```json
+{ "mcpServers": { "nucleus": {
+    "command": "nucleus",
+    "args": ["--vault", "/Users/you/.nucleus/memory.vault",
+             "--caller", "claude-desktop", "serve"] } } }
+```
+
+The `memory_search` / `memory_store` / `memory_forget` / `memory_status` /
+`memory_lock` tools then appear in every session. To make Claude treat it
+as *the* memory (the analog of selecting a provider), add one standing
+instruction to your `CLAUDE.md` / project memory:
+
+> Use the nucleus `memory_search` tool to recall prior facts before
+> answering questions about past work, and store durable facts and user
+> decisions with `memory_store`.
+
 ## Hermes — native provider picker (works today)
 
+One command:
+
+```bash
+pip install nucleus-vault && nucleus init && nucleus integrate hermes
+```
+
 Hermes selects external memory through `hermes memory setup`, an arrow-key
-picker. Nucleus appears there as a first-class option once its plugin
-directory is present:
+picker. `integrate hermes` does all of the following automatically; the
+manual steps, for reference:
 
 ```bash
 # 1. nucleus into the Hermes environment
@@ -52,54 +92,25 @@ requires an upstream hermes-agent PR bundling this plugin under
 which in turn requires the PyPI release. Sequence: publish `nucleus-vault`
 → PR → every Hermes user sees Nucleus in the picker by default.
 
-## OpenClaw — memory plugin slot
-
-OpenClaw selects memory through a plugin slot: installing a memory plugin
-"writes the plugin entry, enables it, and switches `plugins.slots.memory`"
-to it (this is exactly how its LanceDB memory installs:
-`openclaw plugins install @openclaw/memory-lancedb`).
-
-- **Today (MCP):** OpenClaw speaks MCP — register `nucleus serve` as an MCP
-  server and the `memory_*` tools are available to every OpenClaw agent
-  immediately.
-- **Native slot plugin (planned):** an `openclaw-memory-nucleus` plugin
-  implementing OpenClaw's plugin architecture (`before_prompt_build`
-  auto-recall hook + memory tools), bridging to the local `nucleus` CLI /
-  MCP server. Selection then becomes:
-
-  ```bash
-  openclaw plugins install openclaw-memory-nucleus   # once published
-  # → plugins.slots.memory: "memory-nucleus"
-  openclaw gateway restart
-  ```
-
-## Claude (Code and Desktop) — MCP registration IS the selector
-
-Claude has no memory-provider picker; registering an MCP server is how you
-give Claude a memory. One command (Claude Code):
+## OpenClaw — one command (MCP), plugin slot planned
 
 ```bash
-claude mcp add --scope user nucleus -- \
-    nucleus --vault ~/.nucleus/memory.vault --caller claude-code serve
+pip install nucleus-vault && nucleus init && nucleus integrate openclaw
 ```
 
-Claude Desktop (`claude_desktop_config.json`):
+`integrate openclaw` writes the server entry under `mcpServers` in
+`~/.openclaw/openclaw.json` (backing the file up first), then:
 
-```json
-{ "mcpServers": { "nucleus": {
-    "command": "nucleus",
-    "args": ["--vault", "/Users/you/.nucleus/memory.vault",
-             "--caller", "claude-desktop", "serve"] } } }
+```bash
+openclaw gateway restart
+openclaw mcp list        # → nucleus tools listed
 ```
 
-The `memory_search` / `memory_store` / `memory_forget` / `memory_status` /
-`memory_lock` tools then appear in every session. To make Claude treat it
-as *the* memory (the analog of selecting a provider), add one standing
-instruction to your `CLAUDE.md` / project memory:
-
-> Use the nucleus `memory_search` tool to recall prior facts before
-> answering questions about past work, and store durable facts and user
-> decisions with `memory_store`.
+OpenClaw's native memory selector is a plugin slot
+(`plugins.slots.memory`, switched by `openclaw plugins install …`, the
+mechanism its LanceDB memory uses). A native `openclaw-memory-nucleus`
+slot plugin (auto-recall via the `before_prompt_build` hook, bridging to
+the local nucleus engine) is planned; the MCP path above works today.
 
 ## Everything else
 
