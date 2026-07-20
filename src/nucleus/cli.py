@@ -375,6 +375,71 @@ def cmd_pack_list(args) -> None:
     _print(v.pack_list())
 
 
+# --------------------------------------------------------------- integrate
+
+def cmd_integrate(args) -> None:
+    """One-command wiring into an agent ecosystem (hermes / claude)."""
+    import shutil
+    import subprocess as sp
+    target = args.target
+    vault = args.vault
+
+    if target == "hermes":
+        hermes_home = Path(os.environ.get("HERMES_HOME", Path.home() / ".hermes"))
+        plug_src = _data_dir() / "hermes-plugin"
+        plug_dst = hermes_home / "plugins" / "nucleus"
+        plug_dst.mkdir(parents=True, exist_ok=True)
+        for f in ("__init__.py", "plugin.yaml"):
+            shutil.copy2(plug_src / f, plug_dst / f)
+        print(f"✓ provider plugin installed → {plug_dst}")
+        # nucleus must be importable from Hermes's own venv
+        hermes_py = hermes_home / "hermes-agent" / "venv" / "bin" / "python"
+        if hermes_py.exists():
+            r = sp.run([str(hermes_py), "-c", "import nucleus"], capture_output=True)
+            if r.returncode != 0:
+                print("  installing nucleus-vault into the Hermes venv…")
+                sp.run([str(hermes_py), "-m", "pip", "install", "-q",
+                        "nucleus-vault"], check=False)
+        if not os.path.exists(vault):
+            print(f"! no vault at {vault} — run `nucleus init` first, then re-run "
+                  "this command")
+            return
+        hermes = shutil.which("hermes")
+        if hermes:
+            print("  selecting nucleus in Hermes…")
+            sp.run([hermes, "memory", "setup", "nucleus"], check=False)
+        else:
+            print("  finish selection with:  hermes memory setup nucleus")
+        print("Done. Verify with:  hermes memory status")
+
+    elif target == "claude":
+        nucleus_bin = shutil.which("nucleus") or "nucleus"
+        claude = shutil.which("claude")
+        if claude:
+            print("  registering the Nucleus MCP server with Claude Code…")
+            r = sp.run([claude, "mcp", "add", "--scope", "user", "nucleus", "--",
+                        nucleus_bin, "--vault", vault, "--caller", "claude-code",
+                        "serve"], capture_output=True, text=True)
+            print((r.stdout or r.stderr).strip() or "  registered.")
+        else:
+            print("  Claude Code CLI not found; register manually with:")
+            print(f"    claude mcp add --scope user nucleus -- {nucleus_bin} "
+                  f"--vault {vault} --caller claude-code serve")
+        print("\n  For Claude Desktop, add to claude_desktop_config.json:")
+        print(json.dumps({"mcpServers": {"nucleus": {
+            "command": nucleus_bin,
+            "args": ["--vault", vault, "--caller", "claude-desktop", "serve"],
+        }}}, indent=2))
+        print("\n  Tip: add to your CLAUDE.md so Claude treats this as its memory:")
+        print("    Use nucleus memory_search to recall prior facts before "
+              "answering\n    about past work; store durable facts and user "
+              "decisions with memory_store.")
+        if not os.path.exists(vault):
+            print(f"\n! no vault at {vault} — run `nucleus init` to create one")
+    else:
+        _die(f"unknown integrate target {target!r} (hermes | claude)")
+
+
 # ------------------------------------------------------------------- setup
 
 def cmd_setup(args) -> None:
@@ -565,6 +630,11 @@ def main(argv: list[str] | None = None) -> None:
     p.set_defaults(fn=cmd_pack_remove)
     p = pp_sub.add_parser("list")
     p.set_defaults(fn=cmd_pack_list)
+
+    p = sub.add_parser("integrate",
+                       help="one-command wiring into hermes or claude")
+    p.add_argument("target", choices=["hermes", "claude"])
+    p.set_defaults(fn=cmd_integrate)
 
     ps = sub.add_parser("setup", help="models + air-gap bundles")
     ps_sub = ps.add_subparsers(dest="setup_cmd")

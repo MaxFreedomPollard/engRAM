@@ -21,13 +21,12 @@ from __future__ import annotations
 import hashlib
 import json
 import os
-import socket
 import stat
 from pathlib import Path
 
 from . import crypto
 from .crypto import CryptoError, TamperError
-from .platforms import boot_time
+from .platforms import boot_time, machine_id
 
 
 def _session_dir() -> Path:
@@ -51,12 +50,14 @@ def _uid() -> str:
 
 
 def _boot_key() -> bytes:
-    """Wrap key valid only for this boot session of this user on this host."""
+    """Wrap key valid only for this boot session of this user on this
+    machine. Uses the stable hardware machine id, NOT the hostname —
+    macOS renames the host per network, which must not relock the vault."""
     token = "|".join((
-        "nucleus-session-v1",
+        "nucleus-session-v2",
         _boot_time(),
         _uid(),
-        socket.gethostname(),
+        machine_id(),
     ))
     return hashlib.sha256(token.encode()).digest()
 

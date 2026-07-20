@@ -36,3 +36,13 @@ def test_windows_pack_has_registry_facts(vault):
     hit = vault.search("registry hive for machine-wide settings", caller="test",
                        namespace="packs/os-windows")["results"][0]
     assert "HKEY_LOCAL_MACHINE" in hit["text"] or "HKLM" in hit["text"]
+
+
+def test_bundled_hermes_plugin_in_sync():
+    """The pip package ships a copy of the Hermes provider plugin (for
+    `nucleus integrate hermes`); it must match the canonical source."""
+    root = pathlib.Path(__file__).resolve().parents[1]
+    for f in ("__init__.py", "plugin.yaml"):
+        canonical = (root / "integrations" / "hermes" / "nucleus" / f).read_bytes()
+        shipped = (root / "src" / "nucleus" / "data" / "hermes-plugin" / f).read_bytes()
+        assert canonical == shipped, f"{f} out of sync — re-copy into data/hermes-plugin"

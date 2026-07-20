@@ -116,6 +116,34 @@ def boot_time() -> str:
         "or NUCLEUS_PASSPHRASE instead of the boot-session credential")
 
 
+def machine_id() -> str:
+    """A stable identifier for this machine that does NOT change with
+    network/hostname flaps (macOS renames the host per network). Falls back
+    to hostname only if no platform id is available."""
+    system = platform.system()
+    try:
+        if system == "Darwin":
+            out = subprocess.run(
+                ["ioreg", "-rd1", "-c", "IOPlatformExpertDevice"],
+                capture_output=True, text=True, check=True).stdout
+            for line in out.splitlines():
+                if "IOPlatformUUID" in line:
+                    return line.split('"')[-2]
+        elif system == "Linux":
+            for p in ("/etc/machine-id", "/var/lib/dbus/machine-id"):
+                if os.path.exists(p):
+                    return open(p).read().strip()
+        elif system == "Windows":
+            import winreg
+            with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,
+                                r"SOFTWARE\Microsoft\Cryptography") as k:
+                return winreg.QueryValueEx(k, "MachineGuid")[0]
+    except Exception:
+        pass
+    import socket
+    return socket.gethostname()
+
+
 def current_os_pack() -> str | None:
     """The OS fact pack name for this platform, or None if unsupported."""
     return {"Darwin": "os-macos", "Windows": "os-windows",
