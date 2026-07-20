@@ -21,12 +21,12 @@ Most memory tools ask you to choose: powerful, or private, or easy. engRAM
 refuses the trade, because one design decision delivers all three.
 
 **Better recall.** engRAM does not just store chat, it decides what
-matters. A bare "OK" answering "may I edit the registry?" is captured as a
-consent decision, with its question, at the highest priority. What you
-said about yourself and your machine outranks background noise. Search is
-hybrid (meaning plus keywords) and, at personal scale, mathematically
-exact: the top result is the true top result, not an approximation. It
-learns you first, and forgets nothing.
+matters. A bare "OK" answering "send this reply to the client?" is
+captured as a consent decision, with its question, at the highest
+priority. What you said about yourself and your machine outranks
+background noise. Search is hybrid (meaning plus keywords) and, at
+personal scale, mathematically exact: the top result is the true top
+result, not an approximation. It learns you first, and forgets nothing.
 
 **More secure, by construction.** Every byte at rest is authenticated-
 encrypted, the embedding vectors included (most tools leave those in the
@@ -122,12 +122,12 @@ Full write-path, decision math, and comparisons in
 
 **Nearly everything is stored; nothing important is buried.** Only empty
 turns are dropped. A bare "OK" is not noise, it is a decision: when the
-agent asks *"Are you cool with me editing the registry to accomplish
-this?"* and the user answers *"OK"*, engRAM resolves the question from
-the conversation and stores
-`[decision 2026-07-20] Approved (answered "OK"): Are you cool with me
-editing the registry…` at the top importance tier. Asking *"did the user
-approve registry edits?"* later retrieves exactly that record.
+agent asks *"Want me to send this reply to the client now?"* and the user
+answers *"OK"*, engRAM resolves the question from the conversation and
+stores
+`[decision 2026-07-20] Approved (answered "OK"): Want me to send this
+reply to the client now?` at the top importance tier. Asking *"did the
+user say to email the client?"* later retrieves exactly that record.
 
 **Deterministic importance tiers rank recall**: decisions/consent 0.90,
 personal facts and preferences 0.80, the user's machine and configuration

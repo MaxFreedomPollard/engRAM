@@ -64,11 +64,12 @@ information.*
 **Store nearly everything.** The only turns dropped are genuinely empty
 ones. A bare "yes", "no", or "OK" is not noise - it is a decision, and
 often the most important thing in the whole session. When the assistant
-asks *"Can I edit the registry to accomplish this?"* and the user replies
-*"OK"*, engRAM stores a self-contained consent record -
-`[decision <date>] Approved (answered "OK"): Can I edit the registry…` -
-by resolving the question from the preceding assistant turn. A later "did
-the user approve registry edits?" retrieves exactly that.
+asks *"Want me to send this reply to the client now?"* and the user
+replies *"OK"*, engRAM stores a self-contained consent record -
+`[decision <date>] Approved (answered "OK"): Want me to send this reply
+to the client now?` - by resolving the question from the preceding
+assistant turn. A later "did the user say to email the client?" retrieves
+exactly that.
 
 **Importance tiers drive ranking, so completeness never buries what
 matters.** Every stored memory gets a deterministic importance:
@@ -101,8 +102,8 @@ term preserves the *magnitude* of a strong match (so the best answer wins
 outright); the importance term is a gentle nudge that lets a
 personal/decision memory win a genuine near-tie without overriding a
 clearly better match. In practice: ask "what theme does the user like?"
-and the dark-mode preference wins on relevance; ask "did the user approve
-the registry edit?" and the consent decision wins.
+and the dark-mode preference wins on relevance; ask "did the user say to
+email the client?" and the consent decision wins.
 
 **The agent-directed path.** The host model (Hermes, Claude, anything)
 also holds `engram_store` / `engram_forget` tools, so the intelligence
