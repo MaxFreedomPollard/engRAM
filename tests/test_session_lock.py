@@ -2,17 +2,17 @@
 and logins, restart/power loss relocks (boot-bound credential)."""
 import pytest
 
-from nucleus import crypto, session
-from nucleus.crypto import CryptoError
-from nucleus.vault import Vault
+from engram import crypto, session
+from engram.crypto import CryptoError
+from engram.vault import Vault
 
 from conftest import PASS
 
 
 @pytest.fixture(autouse=True)
 def _isolated_session_dir(tmp_path, monkeypatch):
-    monkeypatch.setenv("NUCLEUS_SESSION_DIR", str(tmp_path / "sess"))
-    monkeypatch.delenv("NUCLEUS_PASSPHRASE", raising=False)
+    monkeypatch.setenv("ENGRAM_SESSION_DIR", str(tmp_path / "sess"))
+    monkeypatch.delenv("ENGRAM_PASSPHRASE", raising=False)
 
 
 def test_locked_by_default_without_credential(vault, vault_path):
@@ -67,7 +67,7 @@ def test_session_wrap_is_aead_not_plaintext(vault, vault_path):
 
 def test_multiprocess_write_safety(vault, vault_path):
     """Second writer on the same vault detects staleness instead of corrupting."""
-    from nucleus.vault import VaultStaleError
+    from engram.vault import VaultStaleError
     vault.store("writer A first", caller="A")
     b = Vault.unlock(vault_path, passphrase=PASS)   # second "process"
     b.store("writer B first", caller="B")            # B writes...

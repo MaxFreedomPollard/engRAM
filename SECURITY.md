@@ -1,4 +1,4 @@
-# Nucleus Security Model
+# engRAM Security Model
 
 Honest threat model. Read the "cannot protect against" section too — a
 security product that claims everything protects nothing.
@@ -19,7 +19,7 @@ No homemade crypto. AAD binds every ciphertext to its role and vault
 (payloads, journal entries by sequence number, keyslots, record bodies by
 record id) — ciphertexts cannot be transplanted between contexts.
 
-## What Nucleus protects against
+## What engRAM protects against
 
 - **Stolen disk / stolen laptop (vault at rest):** the vault file is a
   single AEAD-sealed blob under an Argon2id-wrapped key. No plaintext,
@@ -40,17 +40,17 @@ record id) — ciphertexts cannot be transplanted between contexts.
   `packs/*` immutable for everyone. Run one server instance per host for
   boundary enforcement (see limitations).
 - **Embedding inversion:** vectors can be partially inverted back toward
-  text, so Nucleus encrypts vectors like everything else. No plaintext
+  text, so engRAM encrypts vectors like everything else. No plaintext
   vector index ever exists on disk.
 - **Stored prompt injection:** memories recalled from storage are wrapped
   with a data-not-instructions notice; content stored from untrusted
   sources can be flagged `quarantined`, which attaches an explicit warning
   envelope to every future recall. This is a mitigation, not a guarantee —
   the host agent must still treat memory as data.
-- **History falsification:** the audit log is hash-chained; `nucleus audit
+- **History falsification:** the audit log is hash-chained; `engram audit
   verify` reports the first broken link.
 
-## What Nucleus CANNOT protect against
+## What engRAM CANNOT protect against
 
 - **A compromised OS while the vault is unlocked.** Anything that can read
   this process's RAM can read the working set and the master key. This is
@@ -62,7 +62,7 @@ record id) — ciphertexts cannot be transplanted between contexts.
   vault. Copies made before the shred still contain it (encrypted).
 - **A hostile host agent within its granted namespaces.** The `--caller`
   identity is declarative. A host that lies about its name gets that
-  name's grants. For real isolation, run one `nucleus serve` per host with
+  name's grants. For real isolation, run one `engram serve` per host with
   its own config file and OS-level separation.
 - **Weak passphrases.** Argon2id slows attackers; it cannot save
   "password1". The 16-word recovery phrase carries 128 bits — store it
@@ -74,9 +74,9 @@ record id) — ciphertexts cannot be transplanted between contexts.
 
 ## Unlock paths, ranked
 
-1. **Boot-session credential (the default).** `nucleus unlock` wraps the
+1. **Boot-session credential (the default).** `engram unlock` wraps the
    master key with a key derived from the current boot's kernel timestamp
-   (plus uid + hostname) and stores it 0600 in `~/.nucleus/session/`. The
+   (plus uid + hostname) and stores it 0600 in `~/.engram/session/`. The
    vault then stays continuously usable — across processes, logouts, and
    logins, for weeks or months — and RELOCKS on any restart or power loss:
    the new boot's derivation can never open the old wrap, and stale files
@@ -86,22 +86,22 @@ record id) — ciphertexts cannot be transplanted between contexts.
    caveat: the previous boot time may be recoverable from system logs, so
    on an unencrypted disk a stolen *file pair* is theoretically weaker
    than the passphrase. Use FileVault/FDE, which you should anyway.)
-2. **macOS Keychain** (`nucleus unlock --keychain`, explicit opt-in):
+2. **macOS Keychain** (`engram unlock --keychain`, explicit opt-in):
    credential guarded by the OS keychain. Stronger against file theft than
    the session credential, but it SURVIVES REBOOTS — choose it only if
    that is what you want.
-3. **`NUCLEUS_PASSPHRASE` env var:** for scripts/CI; visible to anything
+3. **`ENGRAM_PASSPHRASE` env var:** for scripts/CI; visible to anything
    that can read the process environment.
 4. **`memory_unlock` MCP tool: DISABLED by default.** The passphrase would
    transit the agent's context window and possibly the host's logs/model
    provider. Enable only if you accept that
    (`settings.unlock_tool_enabled` in `<vault>.config.json`).
 
-`nucleus lock` and the `memory_lock` panic tool clear ALL stored
+`engram lock` and the `memory_lock` panic tool clear ALL stored
 credentials (session + keychain). Auto-lock drops the in-RAM key after
 `auto_lock_minutes` (default 30) idle; while a stored credential remains,
 the next operation silently re-opens — stored credentials represent
-standing user intent, ended by `nucleus lock` or a reboot.
+standing user intent, ended by `engram lock` or a reboot.
 
 ## Multi-agent, one vault
 

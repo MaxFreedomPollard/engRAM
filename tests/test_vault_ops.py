@@ -6,9 +6,9 @@ import textwrap
 
 import pytest
 
-from nucleus import audit
-from nucleus.crypto import CryptoError
-from nucleus.vault import Vault, VaultLockedError
+from engram import audit
+from engram.crypto import CryptoError
+from engram.vault import Vault, VaultLockedError
 
 from conftest import PASS, SRC
 
@@ -48,7 +48,7 @@ def test_kill9_crash_recovery(tmp_path):
     script = textwrap.dedent(f"""
         import os, sys
         sys.path.insert(0, {str(SRC)!r})
-        from nucleus.vault import Vault
+        from engram.vault import Vault
         v, _ = Vault.create({vp!r}, {PASS!r})
         v.store("write one", caller="crash")
         v.store("write two", caller="crash")
@@ -117,7 +117,7 @@ def test_rekey(vault, vault_path):
 
 def test_signed_lock_and_verify(vault, vault_path):
     from nacl.signing import SigningKey
-    from nucleus.vaultfile import read_vault_file, verify_manifest
+    from engram.vaultfile import read_vault_file, verify_manifest
     vault.store("sealed content", caller="test")
     vault.lock(signing_key=SigningKey.generate())
     m = verify_manifest(read_vault_file(vault_path))
@@ -126,7 +126,7 @@ def test_signed_lock_and_verify(vault, vault_path):
     raw = bytearray(open(vault_path, "rb").read())
     raw[-1] ^= 0xFF
     open(vault_path, "wb").write(bytes(raw))
-    from nucleus.crypto import TamperError
+    from engram.crypto import TamperError
     with pytest.raises(TamperError):
         verify_manifest(read_vault_file(vault_path))
 

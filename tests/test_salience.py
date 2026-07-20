@@ -1,6 +1,6 @@
 """The write-decision function: store nearly everything, prioritize the user
 and their machine, and treat every yes/no as a decision."""
-from nucleus import salience
+from engram import salience
 
 
 def test_bare_yes_no_are_decisions_and_stored():

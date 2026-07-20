@@ -1,4 +1,4 @@
-# Nucleus On-Disk Formats (v1)
+# engRAM On-Disk Formats (v1)
 
 Language-agnostic byte-level spec. A conforming implementation in any
 language can read both formats from this document alone (invariant I5).
@@ -43,7 +43,7 @@ keyslot wrapping fails AEAD auth if slots are altered.
  "kdf":  {"alg": "argon2id", "time_cost": 3, "memory_kib": 65536, "parallelism": 4},
  "salt": "16-byte hex",
  "wrapped": "hex of AEAD_seal(key=Argon2id(secret, salt), msg=master_key,
-             aad='nucleus-keyslot')"}
+             aad='engram-keyslot')"}
 ```
 
 `AEAD_seal(key, msg, aad)` = 24-byte random nonce ‖
@@ -57,7 +57,7 @@ index.
 `payload_plain = TLV(sections)`; currently one section, `"sqlite"` — a
 serialized SQLite database image (schema in `store.py`; includes records,
 FTS5 index, audit chain, meta).
-`payload_ct = AEAD_seal(master_key, payload_plain, aad="nucleus-payload:"+vault_id)`.
+`payload_ct = AEAD_seal(master_key, payload_plain, aad="engram-payload:"+vault_id)`.
 
 TLV container:
 ```
@@ -68,7 +68,7 @@ u32 section_count, then per section:
 ### Journal
 
 Each entry: `AEAD_seal(master_key, canonical_json(entry),
-aad="nucleus-journal:"+vault_id+":"+u64_be(seq))` where `seq` starts at 0
+aad="engram-journal:"+vault_id+":"+u64_be(seq))` where `seq` starts at 0
 after each compaction and increments per entry. Entries are fsync'd on
 append (acknowledged). Ops:
 
@@ -123,7 +123,7 @@ header pins `content_sha256`, the signature covers the body transitively.
 parse.** Any failure aborts before further parsing.
 
 Body (after optional AEAD unseal with
-`aad="nucleus-pack:"+name`): TLV sections
+`aad="engram-pack:"+name`): TLV sections
 `"records"` = JSONL, one `{"id"?, "text", "tags"?, "importance"?}` per line;
 `"vectors"` = `records × dim` float32 little-endian, row-major, L2-normalized,
 computed with `header.model`.

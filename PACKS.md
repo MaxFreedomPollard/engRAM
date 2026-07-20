@@ -1,7 +1,7 @@
 # Authoring Memory Packs
 
 A memory pack is a signed, versioned `.mpack` file of knowledge that
-installs into any Nucleus vault fully offline, with precomputed vectors.
+installs into any engRAM vault fully offline, with precomputed vectors.
 
 ## Build
 
@@ -12,11 +12,11 @@ installs into any Nucleus vault fully offline, with precomputed vectors.
 2. Build and sign:
 
 ```bash
-nucleus pack build facts.jsonl \
+engram pack build facts.jsonl \
     --name my-pack --version 1.0.0 \
     --description "What this pack knows" \
     --creator "Your Name" \
-    --identity ~/.nucleus/identity.json      # created on first use — KEEP PRIVATE
+    --identity ~/.engram/identity.json      # created on first use — KEEP PRIVATE
 ```
 
 The build embeds every record with the bundled default model, so consumers
@@ -29,9 +29,9 @@ pack passphrase (private distribution).
 ## Consume
 
 ```bash
-nucleus pack install my-pack-1.0.0.mpack     # verifies signature + hash FIRST
-nucleus pack list
-nucleus pack remove my-pack
+engram pack install my-pack-1.0.0.mpack     # verifies signature + hash FIRST
+engram pack list
+engram pack remove my-pack
 ```
 
 Records land read-only in `packs/my-pack` for every caller. Reinstalling a
@@ -64,20 +64,20 @@ pack replaces it wholesale (semver replace, never merge).
 1. Edit `tools/starter/starter_facts.jsonl` in any editor: insert, delete,
    reword, append. Line position is irrelevant to retrieval; only ids must
    stay unique. Keep ids `core-001`..`core-260` textually intact (they are
-   the frozen `nucleus selftest` corpus).
+   the frozen `engram selftest` corpus).
 2. Rebuild (re-embeds every line with the bundled model and re-signs):
    ```bash
    python tools/build_starter_pack.py 1.0.1     # arg = new pack version
    ```
 3. Refresh an existing vault and verify:
    ```bash
-   nucleus pack install src/nucleus/data/starter.mpack
-   nucleus selftest      # must stay 20/20
+   engram pack install src/engram/data/starter.mpack
+   engram selftest      # must stay 20/20
    ```
-Every future `nucleus init` then includes your edits.
+Every future `engram init` then includes your edits.
 
 The AKC-derived section can be regenerated from upstream with
 `tools/build_akc_pack.py` (writes `tools/starter/akc_regenerated.jsonl`
 for merging). Any other pack can be dumped for editing with
-`nucleus pack export <file.mpack> <out.jsonl>` and rebuilt with
-`nucleus pack build`.
+`engram pack export <file.mpack> <out.jsonl>` and rebuilt with
+`engram pack build`.

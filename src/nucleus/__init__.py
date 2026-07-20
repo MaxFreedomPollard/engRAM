@@ -1,7 +1,0 @@
-"""Nucleus — high-security, fully offline, encrypted vector memory for AI agents."""
-
-__version__ = "1.7.0"
-
-from . import offline_guard as _og
-
-_og.activate_from_env()

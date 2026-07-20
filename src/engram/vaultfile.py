@@ -1,0 +1,258 @@
+"""The .vault on-disk format (see FORMAT.md for the byte-level spec).
+
+Layout:
+    magic "NUCV" | version u16 | header_len u32 | header JSON (plaintext, canonical)
+    payload ciphertext (AEAD-sealed, length in header)
+    journal: zero or more entries, each: u32 len | AEAD-sealed entry
+
+Invariant I2: plaintext never touches disk. The payload and every journal
+entry are sealed before any byte is written. lock/save rewrites the file
+atomically (temp file → fsync → rename). Journal appends are fsync'd, so an
+acknowledged write survives kill -9; a truncated *final* entry is an
+unacknowledged write and is discarded on open with a notice — any other
+malformed byte is a tamper error.
+"""
+from __future__ import annotations
+
+import io
+import json
+import os
+import struct
+from dataclasses import dataclass, field
+
+from nacl.signing import SigningKey, VerifyKey
+
+from . import crypto
+from .crypto import CryptoError, TamperError
+
+MAGIC = b"NUCV"
+FORMAT_VERSION = 1
+
+
+class VaultFormatError(CryptoError):
+    """The file is not a valid engRAM vault (or a newer, unknown version)."""
+
+
+@dataclass
+class VaultHeader:
+    vault_id: str
+    created: str
+    keyslots: list[dict]
+    payload_len: int
+    model: dict
+    manifest: dict | None = None
+    extra: dict = field(default_factory=dict)
+
+    def to_json(self) -> dict:
+        return {
+            "vault_id": self.vault_id,
+            "created": self.created,
+            "keyslots": self.keyslots,
+            "payload_len": self.payload_len,
+            "model": self.model,
+            "manifest": self.manifest,
+            "extra": self.extra,
+        }
+
+    @staticmethod
+    def from_json(d: dict) -> "VaultHeader":
+        return VaultHeader(
+            vault_id=d["vault_id"],
+            created=d["created"],
+            keyslots=d["keyslots"],
+            payload_len=d["payload_len"],
+            model=d["model"],
+            manifest=d.get("manifest"),
+            extra=d.get("extra", {}),
+        )
+
+
+def _payload_aad(vault_id: str) -> bytes:
+    return b"engram-payload:" + vault_id.encode()
+
+
+def _journal_aad(vault_id: str, seq: int) -> bytes:
+    return b"engram-journal:" + vault_id.encode() + b":" + struct.pack(">Q", seq)
+
+
+# ---------------------------------------------------------------------------
+# TLV payload container: named binary sections inside the sealed payload.
+# ---------------------------------------------------------------------------
+
+def pack_sections(sections: dict[str, bytes]) -> bytes:
+    out = io.BytesIO()
+    out.write(struct.pack(">I", len(sections)))
+    for name, data in sections.items():
+        nb = name.encode("utf-8")
+        out.write(struct.pack(">H", len(nb)))
+        out.write(nb)
+        out.write(struct.pack(">Q", len(data)))
+        out.write(data)
+    return out.getvalue()
+
+
+def unpack_sections(blob: bytes) -> dict[str, bytes]:
+    buf = io.BytesIO(blob)
+    (count,) = struct.unpack(">I", buf.read(4))
+    sections: dict[str, bytes] = {}
+    for _ in range(count):
+        (nlen,) = struct.unpack(">H", buf.read(2))
+        name = buf.read(nlen).decode("utf-8")
+        (dlen,) = struct.unpack(">Q", buf.read(8))
+        data = buf.read(dlen)
+        if len(data) != dlen:
+            raise VaultFormatError("Payload section truncated")
+        sections[name] = data
+    return sections
+
+
+# ---------------------------------------------------------------------------
+# Reading
+# ---------------------------------------------------------------------------
+
+@dataclass
+class LoadedVaultFile:
+    header: VaultHeader
+    payload_ct: bytes
+    journal_cts: list[bytes]
+    truncated_tail: bool  # a partial (crashed, unacknowledged) final journal entry was discarded
+
+
+def read_vault_file(path: str) -> LoadedVaultFile:
+    with open(path, "rb") as f:
+        raw = f.read()
+    if len(raw) < 10 or raw[:4] != MAGIC:
+        raise VaultFormatError(f"{path} is not a engRAM vault (bad magic)")
+    (version,) = struct.unpack(">H", raw[4:6])
+    if version != FORMAT_VERSION:
+        raise VaultFormatError(
+            f"Vault format version {version} is not supported by this build "
+            f"(supported: {FORMAT_VERSION})"
+        )
+    (hlen,) = struct.unpack(">I", raw[6:10])
+    if len(raw) < 10 + hlen:
+        raise VaultFormatError("Vault header truncated")
+    try:
+        header = VaultHeader.from_json(json.loads(raw[10 : 10 + hlen]))
+    except (json.JSONDecodeError, UnicodeDecodeError, KeyError, TypeError,
+            ValueError) as exc:
+        raise VaultFormatError(
+            f"Vault header is corrupt (modified or damaged): {exc}") from exc
+
+    pos = 10 + hlen
+    payload_ct = raw[pos : pos + header.payload_len]
+    if len(payload_ct) != header.payload_len:
+        raise VaultFormatError("Vault payload truncated")
+    pos += header.payload_len
+
+    journal_cts: list[bytes] = []
+    truncated_tail = False
+    while pos < len(raw):
+        if pos + 4 > len(raw):
+            truncated_tail = True
+            break
+        (elen,) = struct.unpack(">I", raw[pos : pos + 4])
+        entry = raw[pos + 4 : pos + 4 + elen]
+        if len(entry) != elen:
+            truncated_tail = True  # crashed mid-append; final entry unacknowledged
+            break
+        journal_cts.append(entry)
+        pos += 4 + elen
+    return LoadedVaultFile(header, payload_ct, journal_cts, truncated_tail)
+
+
+def decrypt_payload(header: VaultHeader, payload_ct: bytes, master_key: bytes) -> dict[str, bytes]:
+    plain = crypto.unseal(master_key, payload_ct, aad=_payload_aad(header.vault_id))
+    return unpack_sections(plain)
+
+
+def decrypt_journal(header: VaultHeader, journal_cts: list[bytes], master_key: bytes) -> list[dict]:
+    entries = []
+    for seq, ct in enumerate(journal_cts):
+        plain = crypto.unseal(master_key, ct, aad=_journal_aad(header.vault_id, seq))
+        entries.append(json.loads(plain))
+    return entries
+
+
+# ---------------------------------------------------------------------------
+# Writing
+# ---------------------------------------------------------------------------
+
+def write_vault_file(
+    path: str,
+    header: VaultHeader,
+    sections: dict[str, bytes],
+    master_key: bytes,
+    signing_key: SigningKey | None = None,
+) -> None:
+    """Seal sections and atomically (re)write the vault with an empty journal."""
+    payload_ct = crypto.seal(
+        master_key, pack_sections(sections), aad=_payload_aad(header.vault_id)
+    )
+    header.payload_len = len(payload_ct)
+    if signing_key is not None:
+        header.manifest = _make_manifest(header, payload_ct, signing_key)
+    hjson = crypto.canonical_json(header.to_json())
+    tmp = path + ".tmp"
+    with open(tmp, "wb") as f:
+        f.write(MAGIC)
+        f.write(struct.pack(">H", FORMAT_VERSION))
+        f.write(struct.pack(">I", len(hjson)))
+        f.write(hjson)
+        f.write(payload_ct)
+        f.flush()
+        os.fsync(f.fileno())
+    os.replace(tmp, path)
+
+
+def append_journal_entry(path: str, header: VaultHeader, seq: int, entry: dict, master_key: bytes) -> None:
+    ct = crypto.seal(
+        master_key,
+        crypto.canonical_json(entry),
+        aad=_journal_aad(header.vault_id, seq),
+    )
+    with open(path, "ab") as f:
+        f.write(struct.pack(">I", len(ct)))
+        f.write(ct)
+        f.flush()
+        os.fsync(f.fileno())
+
+
+# ---------------------------------------------------------------------------
+# Signed manifest (vault sealing) — verifiable without any key.
+# ---------------------------------------------------------------------------
+
+def _make_manifest(header: VaultHeader, payload_ct: bytes, signing_key: SigningKey) -> dict:
+    body = {
+        "creator": header.extra.get("creator", "unknown"),
+        "created": header.created,
+        "vault_id": header.vault_id,
+        "content_sha256": crypto.sha256(payload_ct),
+        "signer_pub": signing_key.verify_key.encode().hex(),
+    }
+    sig = signing_key.sign(crypto.canonical_json(body)).signature
+    return {**body, "sig": sig.hex()}
+
+
+def verify_manifest(loaded: LoadedVaultFile) -> dict:
+    """Verify the signed manifest of a sealed vault. No key material needed."""
+    m = loaded.header.manifest
+    if not m:
+        raise VaultFormatError("Vault is not signed (no manifest)")
+    body = {k: v for k, v in m.items() if k != "sig"}
+    try:
+        VerifyKey(bytes.fromhex(m["signer_pub"])).verify(
+            crypto.canonical_json(body), bytes.fromhex(m["sig"])
+        )
+    except Exception as exc:
+        raise TamperError("Vault manifest signature is INVALID") from exc
+    actual = crypto.sha256(loaded.payload_ct)
+    if actual != m["content_sha256"]:
+        raise TamperError(
+            "Vault payload does not match its signed manifest (content was modified)"
+        )
+    if loaded.journal_cts:
+        raise TamperError(
+            "Sealed vault has journal entries appended after signing"
+        )
+    return m

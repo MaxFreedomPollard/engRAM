@@ -1,9 +1,9 @@
 import numpy as np
 import pytest
 
-from nucleus import audit, packs
-from nucleus.acl import AclError
-from nucleus.vault import QUARANTINE_WARNING
+from engram import audit, packs
+from engram.acl import AclError
+from engram.vault import QUARANTINE_WARNING
 
 from conftest import seed_pack_bytes
 
@@ -55,11 +55,11 @@ def test_audit_chain_verify_and_break_detection(vault):
 def test_pack_lifecycle_fast_path_and_reembed(vault):
     out = packs.install_pack(vault, seed_pack_bytes(), caller="test")
     assert out["used_precomputed_vectors"] is True
-    assert out["records"] == 4807
-    assert vault.db.count("packs/starter") == 4807
+    assert out["records"] == 4808
+    assert vault.db.count("packs/starter") == 4808
 
     n = packs.remove_pack(vault, "starter", caller="test")
-    assert n == 4807 and vault.db.count("packs/starter") == 0
+    assert n == 4808 and vault.db.count("packs/starter") == 0
     with pytest.raises(packs.PackError):
         packs.remove_pack(vault, "starter", caller="test")
 

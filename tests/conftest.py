@@ -6,13 +6,13 @@ import pytest
 SRC = pathlib.Path(__file__).resolve().parents[1] / "src"
 sys.path.insert(0, str(SRC))
 
-from nucleus.vault import Vault  # noqa: E402
+from engram.vault import Vault  # noqa: E402
 
 PASS = "CorrectHorse"
 
 
 def seed_pack_bytes() -> bytes:
-    return (SRC / "nucleus" / "data" / "starter.mpack").read_bytes()
+    return (SRC / "engram" / "data" / "starter.mpack").read_bytes()
 
 
 @pytest.fixture()
@@ -28,7 +28,7 @@ def vault(vault_path):
 
 @pytest.fixture(scope="session")
 def seeded_vault_path(tmp_path_factory):
-    from nucleus import packs
+    from engram import packs
     p = str(tmp_path_factory.mktemp("seeded") / "seeded.vault")
     v, _ = Vault.create(p, PASS, creator="test")
     packs.install_pack(v, seed_pack_bytes(), caller="test")

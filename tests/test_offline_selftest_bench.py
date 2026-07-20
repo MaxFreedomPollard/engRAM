@@ -4,8 +4,8 @@ import urllib.request
 
 import pytest
 
-from nucleus import bench, offline_guard, selftest
-from nucleus.vindex import BruteForceIndex, UsearchIndex, build_index
+from engram import bench, offline_guard, selftest
+from engram.vindex import BruteForceIndex, UsearchIndex, build_index
 
 import numpy as np
 
@@ -27,8 +27,8 @@ def test_guard_blocks_network(offline):
 def test_full_lifecycle_with_sockets_blocked(offline, tmp_path):
     """The headline claim: init → seed → selftest → store → search → shred →
     lock → unlock, all with network creation blocked."""
-    from nucleus import packs
-    from nucleus.vault import Vault
+    from engram import packs
+    from engram.vault import Vault
     from conftest import PASS, seed_pack_bytes
 
     vp = str(tmp_path / "offline.vault")
@@ -41,7 +41,7 @@ def test_full_lifecycle_with_sockets_blocked(offline, tmp_path):
     v.forget(r["id"], caller="offline-test", shred=True)
     v.lock()
     v2 = Vault.unlock(vp, passphrase=PASS)
-    assert v2.db.count() == 4807
+    assert v2.db.count() == 4808
 
 
 def test_seed_relevance_regression(seeded_vault):

@@ -1,12 +1,12 @@
 # Bundled-in-hermes variant of plugin.yaml. Identical to
-# ../nucleus/plugin.yaml except pip_dependencies declares the engine, so
-# `hermes memory setup` auto-installs nucleus-vault when the user selects
-# Nucleus in the picker. Use THIS file in the upstream PR.
-name: nucleus
+# ../engram/plugin.yaml except pip_dependencies declares the engine, so
+# `hermes memory setup` auto-installs engram-vault when the user selects
+# engRAM in the picker. Use THIS file in the upstream PR.
+name: engram
 version: 1.5.0
-description: "Nucleus: fully offline, AEAD-encrypted vector memory. No API key, no cloud. Ships ~4,700 starter facts as precomputed vectors, locks itself on restart/power loss, per-caller namespaces, crypto-shred deletion."
+description: "engRAM: fully offline, AEAD-encrypted vector memory. No API key, no cloud. Ships ~4,700 starter facts as precomputed vectors, locks itself on restart/power loss, per-caller namespaces, crypto-shred deletion."
 pip_dependencies:
-  - "nucleus-vault>=1.5"
+  - "engram-vault>=1.5"
 requires_env: []
 hooks:
   - on_session_switch

@@ -1,7 +1,7 @@
 import pytest
 
-from nucleus import crypto
-from nucleus.crypto import TamperError
+from engram import crypto
+from engram.crypto import TamperError
 
 
 def test_seal_unseal_roundtrip():

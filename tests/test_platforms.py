@@ -2,7 +2,7 @@
 OS pack selection matches the running platform."""
 import pytest
 
-from nucleus import platforms
+from engram import platforms
 
 
 def test_boot_time_stable_within_session():

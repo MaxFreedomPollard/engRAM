@@ -1,15 +1,15 @@
 """The shipped starter pack: present, signed, precomputed-vector, complete."""
 import pathlib
 
-from nucleus import packs
+from engram import packs
 
-DATA = pathlib.Path(__file__).resolve().parents[1] / "src" / "nucleus" / "data"
+DATA = pathlib.Path(__file__).resolve().parents[1] / "src" / "engram" / "data"
 
 
 def test_starter_pack_ships_and_verifies():
     blob = (DATA / "starter.mpack").read_bytes()
     header, records, vectors = packs.read_pack(blob)  # verifies sig+hash
-    assert len(records) == vectors.shape[0] == header["records"] == 4807
+    assert len(records) == vectors.shape[0] == header["records"] == 4808
     assert vectors.shape[1] == 384
 
 
@@ -45,7 +45,7 @@ def test_os_facts_recallable(vault):
 def test_pack_export_roundtrip(tmp_path):
     """export → hand-edit (insert a line mid-file) → rebuild keeps everything."""
     import json as _json
-    from nucleus.embed import DEFAULT_MODEL, Embedder
+    from engram.embed import DEFAULT_MODEL, Embedder
     _, records, _ = packs.read_pack((DATA / "starter.mpack").read_bytes())
     sample = records[:40]  # keep the test fast
     lines = [_json.dumps(r, sort_keys=True) for r in sample]
@@ -67,6 +67,6 @@ def test_pack_export_roundtrip(tmp_path):
 def test_bundled_hermes_plugin_in_sync():
     root = pathlib.Path(__file__).resolve().parents[1]
     for f in ("__init__.py", "plugin.yaml"):
-        canonical = (root / "integrations" / "hermes" / "nucleus" / f).read_bytes()
-        shipped = (root / "src" / "nucleus" / "data" / "hermes-plugin" / f).read_bytes()
+        canonical = (root / "integrations" / "hermes" / "engram" / f).read_bytes()
+        shipped = (root / "src" / "engram" / "data" / "hermes-plugin" / f).read_bytes()
         assert canonical == shipped, f"{f} out of sync — re-copy into data/hermes-plugin"
