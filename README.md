@@ -148,7 +148,9 @@ explicit: `engram reindex --re-embed`.
 model, <300 MB RAM). Judgment belongs to the host model you already run,
 via `engram_store` / `engram_forget`; engRAM contributes deterministic
 capture, encryption, and total recall. That split is what makes the
-offline guarantee absolute and every decision reproducible.
+offline guarantee absolute and every decision reproducible. Pair engRAM
+with an offline LLM and the whole agent stack can run usefully with no
+network at all.
 
 ## Agent-native by design
 
