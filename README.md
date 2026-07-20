@@ -37,12 +37,14 @@ on restart or power loss. It runs fully offline: a runtime guard aborts on
 any network attempt, and CI proves it on three operating systems.
 
 **Not one step harder.** One command installs it, creates the vault, and
-wires your agent. No API key, no cloud account, no daemon. You unlock once
-and it stays open for weeks, like any app you leave running. The security
-is free at the point of use because it falls out of the architecture, not
-out of your patience: keeping plaintext off disk forces the index into
-RAM, and a RAM-resident index is also the fastest one there is. Secure and
-fast are the same choice here, and neither costs you a configuration step.
+wires your agent. No API key, no cloud account, no daemon. Unlock when you
+want to use it; lock when you want it closed. By default an unlock stays
+open for weeks (until restart or you lock it), like any app you leave
+running. The security is free at the point of use because it falls out of
+the architecture, not out of your patience: keeping plaintext off disk
+forces the index into RAM, and a RAM-resident index is also the fastest
+one there is. Secure and fast are the same choice here, and neither costs
+you a configuration step.
 
 ## Install
 
