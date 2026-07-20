@@ -1,0 +1,17 @@
+# NEVER commit the first-party pack-signing private key
+tools/pack_identity.json
+
+# local environment / build artifacts
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+.DS_Store
+
+# local vaults and scratch (vaults are user data, not source)
+*.vault
+*.vault.config.json
+nucleus-airgap.zip

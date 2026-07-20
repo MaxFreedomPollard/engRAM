@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nucleus-vault"
+version = "1.0.0"
+description = "Nucleus — high-security, fully offline, encrypted vector memory for AI agents (MCP)"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+dependencies = [
+    "pynacl>=1.5",
+    "argon2-cffi>=23.1",
+    "onnxruntime>=1.17",
+    "tokenizers>=0.15",
+    "numpy>=1.26",
+    "usearch>=2.9",
+    "mcp>=1.0",
+]
+
+[project.scripts]
+nucleus = "nucleus.cli:main"
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+nucleus = ["models/**/*", "data/*"]

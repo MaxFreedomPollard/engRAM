@@ -1,0 +1,260 @@
+{"id": "core-001", "tags": ["core", "capitals"], "text": "The capital of France is Paris."}
+{"id": "core-002", "tags": ["core", "capitals"], "text": "The capital of Germany is Berlin."}
+{"id": "core-003", "tags": ["core", "capitals"], "text": "The capital of Italy is Rome."}
+{"id": "core-004", "tags": ["core", "capitals"], "text": "The capital of Spain is Madrid."}
+{"id": "core-005", "tags": ["core", "capitals"], "text": "The capital of Portugal is Lisbon."}
+{"id": "core-006", "tags": ["core", "capitals"], "text": "The capital of United Kingdom is London."}
+{"id": "core-007", "tags": ["core", "capitals"], "text": "The capital of Ireland is Dublin."}
+{"id": "core-008", "tags": ["core", "capitals"], "text": "The capital of Netherlands is Amsterdam."}
+{"id": "core-009", "tags": ["core", "capitals"], "text": "The capital of Belgium is Brussels."}
+{"id": "core-010", "tags": ["core", "capitals"], "text": "The capital of Switzerland is Bern."}
+{"id": "core-011", "tags": ["core", "capitals"], "text": "The capital of Austria is Vienna."}
+{"id": "core-012", "tags": ["core", "capitals"], "text": "The capital of Poland is Warsaw."}
+{"id": "core-013", "tags": ["core", "capitals"], "text": "The capital of Czech Republic is Prague."}
+{"id": "core-014", "tags": ["core", "capitals"], "text": "The capital of Greece is Athens."}
+{"id": "core-015", "tags": ["core", "capitals"], "text": "The capital of Norway is Oslo."}
+{"id": "core-016", "tags": ["core", "capitals"], "text": "The capital of Sweden is Stockholm."}
+{"id": "core-017", "tags": ["core", "capitals"], "text": "The capital of Finland is Helsinki."}
+{"id": "core-018", "tags": ["core", "capitals"], "text": "The capital of Denmark is Copenhagen."}
+{"id": "core-019", "tags": ["core", "capitals"], "text": "The capital of Iceland is Reykjavik."}
+{"id": "core-020", "tags": ["core", "capitals"], "text": "The capital of Russia is Moscow."}
+{"id": "core-021", "tags": ["core", "capitals"], "text": "The capital of Ukraine is Kyiv."}
+{"id": "core-022", "tags": ["core", "capitals"], "text": "The capital of Turkey is Ankara."}
+{"id": "core-023", "tags": ["core", "capitals"], "text": "The capital of Egypt is Cairo."}
+{"id": "core-024", "tags": ["core", "capitals"], "text": "The capital of South Africa is Pretoria."}
+{"id": "core-025", "tags": ["core", "capitals"], "text": "The capital of Nigeria is Abuja."}
+{"id": "core-026", "tags": ["core", "capitals"], "text": "The capital of Kenya is Nairobi."}
+{"id": "core-027", "tags": ["core", "capitals"], "text": "The capital of Morocco is Rabat."}
+{"id": "core-028", "tags": ["core", "capitals"], "text": "The capital of Ethiopia is Addis Ababa."}
+{"id": "core-029", "tags": ["core", "capitals"], "text": "The capital of China is Beijing."}
+{"id": "core-030", "tags": ["core", "capitals"], "text": "The capital of Japan is Tokyo."}
+{"id": "core-031", "tags": ["core", "capitals"], "text": "The capital of South Korea is Seoul."}
+{"id": "core-032", "tags": ["core", "capitals"], "text": "The capital of India is New Delhi."}
+{"id": "core-033", "tags": ["core", "capitals"], "text": "The capital of Pakistan is Islamabad."}
+{"id": "core-034", "tags": ["core", "capitals"], "text": "The capital of Thailand is Bangkok."}
+{"id": "core-035", "tags": ["core", "capitals"], "text": "The capital of Vietnam is Hanoi."}
+{"id": "core-036", "tags": ["core", "capitals"], "text": "The capital of Indonesia is Jakarta."}
+{"id": "core-037", "tags": ["core", "capitals"], "text": "The capital of Philippines is Manila."}
+{"id": "core-038", "tags": ["core", "capitals"], "text": "The capital of Malaysia is Kuala Lumpur."}
+{"id": "core-039", "tags": ["core", "capitals"], "text": "The capital of Saudi Arabia is Riyadh."}
+{"id": "core-040", "tags": ["core", "capitals"], "text": "The capital of Israel is Jerusalem."}
+{"id": "core-041", "tags": ["core", "capitals"], "text": "The capital of Iran is Tehran."}
+{"id": "core-042", "tags": ["core", "capitals"], "text": "The capital of Iraq is Baghdad."}
+{"id": "core-043", "tags": ["core", "capitals"], "text": "The capital of Australia is Canberra."}
+{"id": "core-044", "tags": ["core", "capitals"], "text": "The capital of New Zealand is Wellington."}
+{"id": "core-045", "tags": ["core", "capitals"], "text": "The capital of Canada is Ottawa."}
+{"id": "core-046", "tags": ["core", "capitals"], "text": "The capital of United States is Washington, D.C.."}
+{"id": "core-047", "tags": ["core", "capitals"], "text": "The capital of Mexico is Mexico City."}
+{"id": "core-048", "tags": ["core", "capitals"], "text": "The capital of Brazil is Bras\u00edlia."}
+{"id": "core-049", "tags": ["core", "capitals"], "text": "The capital of Argentina is Buenos Aires."}
+{"id": "core-050", "tags": ["core", "capitals"], "text": "The capital of Chile is Santiago."}
+{"id": "core-051", "tags": ["core", "capitals"], "text": "The capital of Peru is Lima."}
+{"id": "core-052", "tags": ["core", "capitals"], "text": "The capital of Colombia is Bogot\u00e1."}
+{"id": "core-053", "tags": ["core", "capitals"], "text": "The capital of Venezuela is Caracas."}
+{"id": "core-054", "tags": ["core", "capitals"], "text": "The capital of Cuba is Havana."}
+{"id": "core-055", "tags": ["core", "capitals"], "text": "The capital of Hungary is Budapest."}
+{"id": "core-056", "tags": ["core", "capitals"], "text": "The capital of Romania is Bucharest."}
+{"id": "core-057", "tags": ["core", "capitals"], "text": "The capital of Bulgaria is Sofia."}
+{"id": "core-058", "tags": ["core", "capitals"], "text": "The capital of Croatia is Zagreb."}
+{"id": "core-059", "tags": ["core", "capitals"], "text": "The capital of Serbia is Belgrade."}
+{"id": "core-060", "tags": ["core", "capitals"], "text": "The capital of Slovakia is Bratislava."}
+{"id": "core-061", "tags": ["core", "elements"], "text": "The chemical element hydrogen has symbol H and atomic number 1."}
+{"id": "core-062", "tags": ["core", "elements"], "text": "The chemical element helium has symbol He and atomic number 2."}
+{"id": "core-063", "tags": ["core", "elements"], "text": "The chemical element lithium has symbol Li and atomic number 3."}
+{"id": "core-064", "tags": ["core", "elements"], "text": "The chemical element beryllium has symbol Be and atomic number 4."}
+{"id": "core-065", "tags": ["core", "elements"], "text": "The chemical element boron has symbol B and atomic number 5."}
+{"id": "core-066", "tags": ["core", "elements"], "text": "The chemical element carbon has symbol C and atomic number 6."}
+{"id": "core-067", "tags": ["core", "elements"], "text": "The chemical element nitrogen has symbol N and atomic number 7."}
+{"id": "core-068", "tags": ["core", "elements"], "text": "The chemical element oxygen has symbol O and atomic number 8."}
+{"id": "core-069", "tags": ["core", "elements"], "text": "The chemical element fluorine has symbol F and atomic number 9."}
+{"id": "core-070", "tags": ["core", "elements"], "text": "The chemical element neon has symbol Ne and atomic number 10."}
+{"id": "core-071", "tags": ["core", "elements"], "text": "The chemical element sodium has symbol Na and atomic number 11."}
+{"id": "core-072", "tags": ["core", "elements"], "text": "The chemical element magnesium has symbol Mg and atomic number 12."}
+{"id": "core-073", "tags": ["core", "elements"], "text": "The chemical element aluminium has symbol Al and atomic number 13."}
+{"id": "core-074", "tags": ["core", "elements"], "text": "The chemical element silicon has symbol Si and atomic number 14."}
+{"id": "core-075", "tags": ["core", "elements"], "text": "The chemical element phosphorus has symbol P and atomic number 15."}
+{"id": "core-076", "tags": ["core", "elements"], "text": "The chemical element sulfur has symbol S and atomic number 16."}
+{"id": "core-077", "tags": ["core", "elements"], "text": "The chemical element chlorine has symbol Cl and atomic number 17."}
+{"id": "core-078", "tags": ["core", "elements"], "text": "The chemical element argon has symbol Ar and atomic number 18."}
+{"id": "core-079", "tags": ["core", "elements"], "text": "The chemical element potassium has symbol K and atomic number 19."}
+{"id": "core-080", "tags": ["core", "elements"], "text": "The chemical element calcium has symbol Ca and atomic number 20."}
+{"id": "core-081", "tags": ["core", "elements"], "text": "The chemical element iron has symbol Fe and atomic number 26."}
+{"id": "core-082", "tags": ["core", "elements"], "text": "The chemical element copper has symbol Cu and atomic number 29."}
+{"id": "core-083", "tags": ["core", "elements"], "text": "The chemical element zinc has symbol Zn and atomic number 30."}
+{"id": "core-084", "tags": ["core", "elements"], "text": "The chemical element silver has symbol Ag and atomic number 47."}
+{"id": "core-085", "tags": ["core", "elements"], "text": "The chemical element tin has symbol Sn and atomic number 50."}
+{"id": "core-086", "tags": ["core", "elements"], "text": "The chemical element iodine has symbol I and atomic number 53."}
+{"id": "core-087", "tags": ["core", "elements"], "text": "The chemical element gold has symbol Au and atomic number 79."}
+{"id": "core-088", "tags": ["core", "elements"], "text": "The chemical element mercury has symbol Hg and atomic number 80."}
+{"id": "core-089", "tags": ["core", "elements"], "text": "The chemical element lead has symbol Pb and atomic number 82."}
+{"id": "core-090", "tags": ["core", "elements"], "text": "The chemical element uranium has symbol U and atomic number 92."}
+{"id": "core-091", "tags": ["core", "conversions"], "text": "One kilometer equals 1000 meters."}
+{"id": "core-092", "tags": ["core", "conversions"], "text": "One meter equals 100 centimeters."}
+{"id": "core-093", "tags": ["core", "conversions"], "text": "One inch equals 2.54 centimeters."}
+{"id": "core-094", "tags": ["core", "conversions"], "text": "One foot equals 12 inches."}
+{"id": "core-095", "tags": ["core", "conversions"], "text": "One yard equals 3 feet."}
+{"id": "core-096", "tags": ["core", "conversions"], "text": "One mile equals 5280 feet, or about 1.609 kilometers."}
+{"id": "core-097", "tags": ["core", "conversions"], "text": "One kilogram equals 1000 grams, or about 2.205 pounds."}
+{"id": "core-098", "tags": ["core", "conversions"], "text": "One pound equals 16 ounces, or about 453.6 grams."}
+{"id": "core-099", "tags": ["core", "conversions"], "text": "One metric tonne equals 1000 kilograms."}
+{"id": "core-100", "tags": ["core", "conversions"], "text": "One liter equals 1000 milliliters."}
+{"id": "core-101", "tags": ["core", "conversions"], "text": "One US gallon equals about 3.785 liters."}
+{"id": "core-102", "tags": ["core", "conversions"], "text": "One hour equals 60 minutes, and one minute equals 60 seconds."}
+{"id": "core-103", "tags": ["core", "conversions"], "text": "One day equals 24 hours, or 1440 minutes."}
+{"id": "core-104", "tags": ["core", "conversions"], "text": "One week equals 7 days, and a common year has 365 days."}
+{"id": "core-105", "tags": ["core", "conversions"], "text": "A leap year has 366 days, with February 29 as the extra day."}
+{"id": "core-106", "tags": ["core", "conversions"], "text": "Water freezes at 0 degrees Celsius, which is 32 degrees Fahrenheit."}
+{"id": "core-107", "tags": ["core", "conversions"], "text": "Water boils at 100 degrees Celsius at sea level, which is 212 degrees Fahrenheit."}
+{"id": "core-108", "tags": ["core", "conversions"], "text": "To convert Celsius to Fahrenheit, multiply by 9/5 and add 32."}
+{"id": "core-109", "tags": ["core", "conversions"], "text": "Zero degrees Kelvin (absolute zero) equals -273.15 degrees Celsius."}
+{"id": "core-110", "tags": ["core", "conversions"], "text": "One byte equals 8 bits."}
+{"id": "core-111", "tags": ["core", "conversions"], "text": "One kibibyte equals 1024 bytes; one kilobyte equals 1000 bytes."}
+{"id": "core-112", "tags": ["core", "conversions"], "text": "One dozen equals 12 items; one gross equals 144 items."}
+{"id": "core-113", "tags": ["core", "conversions"], "text": "One acre equals 43,560 square feet."}
+{"id": "core-114", "tags": ["core", "conversions"], "text": "One hectare equals 10,000 square meters."}
+{"id": "core-115", "tags": ["core", "conversions"], "text": "One nautical mile equals 1.852 kilometers."}
+{"id": "core-116", "tags": ["core", "conversions"], "text": "One horsepower equals about 746 watts."}
+{"id": "core-117", "tags": ["core", "conversions"], "text": "One calorie equals about 4.184 joules."}
+{"id": "core-118", "tags": ["core", "conversions"], "text": "One light-year is about 9.46 trillion kilometers."}
+{"id": "core-119", "tags": ["core", "conversions"], "text": "One astronomical unit is the average Earth-Sun distance, about 150 million kilometers."}
+{"id": "core-120", "tags": ["core", "conversions"], "text": "Speed of sound in air at sea level is about 343 meters per second."}
+{"id": "core-121", "tags": ["core", "dates"], "text": "World War I began in 1914 and ended in 1918."}
+{"id": "core-122", "tags": ["core", "dates"], "text": "World War II began in 1939 and ended in 1945."}
+{"id": "core-123", "tags": ["core", "dates"], "text": "The United States Declaration of Independence was signed in 1776."}
+{"id": "core-124", "tags": ["core", "dates"], "text": "The French Revolution began in 1789."}
+{"id": "core-125", "tags": ["core", "dates"], "text": "The Berlin Wall fell in 1989."}
+{"id": "core-126", "tags": ["core", "dates"], "text": "The first Moon landing, Apollo 11, was in July 1969."}
+{"id": "core-127", "tags": ["core", "dates"], "text": "The Wright brothers made the first powered airplane flight in 1903."}
+{"id": "core-128", "tags": ["core", "dates"], "text": "The Titanic sank in April 1912."}
+{"id": "core-129", "tags": ["core", "dates"], "text": "The printing press was developed by Johannes Gutenberg around 1440."}
+{"id": "core-130", "tags": ["core", "dates"], "text": "Christopher Columbus reached the Americas in 1492."}
+{"id": "core-131", "tags": ["core", "dates"], "text": "The Magna Carta was sealed in 1215."}
+{"id": "core-132", "tags": ["core", "dates"], "text": "The Roman Empire in the West fell in 476 CE."}
+{"id": "core-133", "tags": ["core", "dates"], "text": "The Great Fire of London occurred in 1666."}
+{"id": "core-134", "tags": ["core", "dates"], "text": "The United Nations was founded in 1945."}
+{"id": "core-135", "tags": ["core", "dates"], "text": "The European Union's euro currency entered circulation in 2002."}
+{"id": "core-136", "tags": ["core", "dates"], "text": "The Soviet Union dissolved in 1991."}
+{"id": "core-137", "tags": ["core", "dates"], "text": "The first transatlantic telegraph cable was completed in 1858."}
+{"id": "core-138", "tags": ["core", "dates"], "text": "Penicillin was discovered by Alexander Fleming in 1928."}
+{"id": "core-139", "tags": ["core", "dates"], "text": "The structure of DNA was described by Watson and Crick in 1953."}
+{"id": "core-140", "tags": ["core", "dates"], "text": "The World Wide Web was proposed by Tim Berners-Lee in 1989."}
+{"id": "core-141", "tags": ["core", "dates"], "text": "The first iPhone was released in 2007."}
+{"id": "core-142", "tags": ["core", "dates"], "text": "The Chernobyl nuclear accident occurred in 1986."}
+{"id": "core-143", "tags": ["core", "dates"], "text": "The Suez Canal opened in 1869."}
+{"id": "core-144", "tags": ["core", "dates"], "text": "The Panama Canal opened in 1914."}
+{"id": "core-145", "tags": ["core", "dates"], "text": "The Eiffel Tower was completed in 1889."}
+{"id": "core-146", "tags": ["core", "dates"], "text": "The Great Wall of China was largely built during the Ming dynasty (1368-1644)."}
+{"id": "core-147", "tags": ["core", "dates"], "text": "The Gregorian calendar was introduced in 1582."}
+{"id": "core-148", "tags": ["core", "dates"], "text": "Slavery was abolished in the United States by the 13th Amendment in 1865."}
+{"id": "core-149", "tags": ["core", "dates"], "text": "Women gained the right to vote in the United States in 1920."}
+{"id": "core-150", "tags": ["core", "dates"], "text": "The Universal Declaration of Human Rights was adopted in 1948."}
+{"id": "core-151", "tags": ["core", "science"], "text": "Light travels at about 299,792 kilometers per second in a vacuum."}
+{"id": "core-152", "tags": ["core", "science"], "text": "The Earth orbits the Sun once every 365.25 days."}
+{"id": "core-153", "tags": ["core", "science"], "text": "The Earth rotates on its axis once every 24 hours, causing day and night."}
+{"id": "core-154", "tags": ["core", "science"], "text": "The Moon orbits the Earth roughly every 27.3 days."}
+{"id": "core-155", "tags": ["core", "science"], "text": "Gravity on Earth accelerates falling objects at about 9.8 meters per second squared."}
+{"id": "core-156", "tags": ["core", "science"], "text": "Water is made of two hydrogen atoms and one oxygen atom, H2O."}
+{"id": "core-157", "tags": ["core", "science"], "text": "Table salt is sodium chloride, NaCl."}
+{"id": "core-158", "tags": ["core", "science"], "text": "The human body is roughly 60 percent water."}
+{"id": "core-159", "tags": ["core", "science"], "text": "The adult human body has 206 bones."}
+{"id": "core-160", "tags": ["core", "science"], "text": "The human heart has four chambers: two atria and two ventricles."}
+{"id": "core-161", "tags": ["core", "science"], "text": "Normal human body temperature is about 37 degrees Celsius (98.6 Fahrenheit)."}
+{"id": "core-162", "tags": ["core", "science"], "text": "Adult humans have 32 teeth including wisdom teeth."}
+{"id": "core-163", "tags": ["core", "science"], "text": "Red blood cells carry oxygen using the protein hemoglobin."}
+{"id": "core-164", "tags": ["core", "science"], "text": "The brain and spinal cord make up the central nervous system."}
+{"id": "core-165", "tags": ["core", "science"], "text": "Neurons transmit signals using electrical impulses and chemical neurotransmitters."}
+{"id": "core-166", "tags": ["core", "science"], "text": "DNA stands for deoxyribonucleic acid and carries genetic information."}
+{"id": "core-167", "tags": ["core", "science"], "text": "Humans normally have 23 pairs of chromosomes, 46 in total."}
+{"id": "core-168", "tags": ["core", "science"], "text": "Photosynthesis converts carbon dioxide and water into glucose and oxygen using sunlight."}
+{"id": "core-169", "tags": ["core", "science"], "text": "Plants absorb carbon dioxide and release oxygen."}
+{"id": "core-170", "tags": ["core", "science"], "text": "Sound cannot travel through a vacuum; it needs a medium."}
+{"id": "core-171", "tags": ["core", "science"], "text": "Atoms consist of protons, neutrons, and electrons."}
+{"id": "core-172", "tags": ["core", "science"], "text": "The atomic nucleus contains protons and neutrons and holds nearly all of an atom's mass."}
+{"id": "core-173", "tags": ["core", "science"], "text": "Protons carry positive charge, electrons negative, neutrons no charge."}
+{"id": "core-174", "tags": ["core", "science"], "text": "The periodic table currently has 118 confirmed elements."}
+{"id": "core-175", "tags": ["core", "science"], "text": "Diamond and graphite are both made purely of carbon."}
+{"id": "core-176", "tags": ["core", "science"], "text": "The most abundant gas in Earth's atmosphere is nitrogen, about 78 percent."}
+{"id": "core-177", "tags": ["core", "science"], "text": "Oxygen makes up about 21 percent of Earth's atmosphere."}
+{"id": "core-178", "tags": ["core", "science"], "text": "The pH scale runs from 0 to 14, with 7 being neutral."}
+{"id": "core-179", "tags": ["core", "science"], "text": "Absolute zero is the lowest possible temperature, where molecular motion is minimal."}
+{"id": "core-180", "tags": ["core", "science"], "text": "Energy cannot be created or destroyed, only transformed (conservation of energy)."}
+{"id": "core-181", "tags": ["core", "science"], "text": "The mitochondrion is the organelle that produces most of a cell's ATP energy."}
+{"id": "core-182", "tags": ["core", "science"], "text": "Antibiotics treat bacterial infections, not viral ones."}
+{"id": "core-183", "tags": ["core", "science"], "text": "Vaccines train the immune system to recognize pathogens."}
+{"id": "core-184", "tags": ["core", "science"], "text": "The four classical states of matter are solid, liquid, gas, and plasma."}
+{"id": "core-185", "tags": ["core", "science"], "text": "Copper and silver are excellent electrical conductors."}
+{"id": "core-186", "tags": ["core", "science"], "text": "An electric current is a flow of electric charge, measured in amperes."}
+{"id": "core-187", "tags": ["core", "science"], "text": "Voltage is measured in volts, resistance in ohms, power in watts."}
+{"id": "core-188", "tags": ["core", "science"], "text": "Ohm's law states that voltage equals current times resistance."}
+{"id": "core-189", "tags": ["core", "science"], "text": "The speed of a wave equals its frequency times its wavelength."}
+{"id": "core-190", "tags": ["core", "science"], "text": "Isaac Newton formulated the three laws of motion."}
+{"id": "core-191", "tags": ["core", "geography"], "text": "The Pacific Ocean is the largest and deepest ocean on Earth."}
+{"id": "core-192", "tags": ["core", "geography"], "text": "The Atlantic Ocean is the second-largest ocean."}
+{"id": "core-193", "tags": ["core", "geography"], "text": "The Nile and the Amazon are the two longest rivers in the world."}
+{"id": "core-194", "tags": ["core", "geography"], "text": "Mount Everest, at 8,849 meters, is Earth's highest mountain above sea level."}
+{"id": "core-195", "tags": ["core", "geography"], "text": "The Mariana Trench contains the deepest known point in the ocean."}
+{"id": "core-196", "tags": ["core", "geography"], "text": "The Sahara is the largest hot desert in the world."}
+{"id": "core-197", "tags": ["core", "geography"], "text": "Antarctica is the coldest continent and holds most of Earth's fresh water as ice."}
+{"id": "core-198", "tags": ["core", "geography"], "text": "Africa is the second-largest continent by land area, after Asia."}
+{"id": "core-199", "tags": ["core", "geography"], "text": "Australia is both a country and a continent."}
+{"id": "core-200", "tags": ["core", "geography"], "text": "The equator divides the Earth into Northern and Southern Hemispheres."}
+{"id": "core-201", "tags": ["core", "geography"], "text": "The Amazon rainforest is the largest tropical rainforest on Earth."}
+{"id": "core-202", "tags": ["core", "geography"], "text": "The Great Barrier Reef, off Australia, is the world's largest coral reef system."}
+{"id": "core-203", "tags": ["core", "geography"], "text": "Russia is the largest country in the world by land area."}
+{"id": "core-204", "tags": ["core", "geography"], "text": "Canada has the longest coastline of any country."}
+{"id": "core-205", "tags": ["core", "geography"], "text": "The Caspian Sea is the largest inland body of water."}
+{"id": "core-206", "tags": ["core", "geography"], "text": "Lake Baikal in Siberia is the deepest freshwater lake."}
+{"id": "core-207", "tags": ["core", "geography"], "text": "The Dead Sea shore is the lowest land elevation on Earth."}
+{"id": "core-208", "tags": ["core", "geography"], "text": "Greenland is the world's largest island that is not a continent."}
+{"id": "core-209", "tags": ["core", "geography"], "text": "The Himalayas contain most of the world's highest peaks."}
+{"id": "core-210", "tags": ["core", "geography"], "text": "The Andes is the longest continental mountain range, running along South America."}
+{"id": "core-211", "tags": ["core", "geography"], "text": "The Mississippi River flows into the Gulf of Mexico."}
+{"id": "core-212", "tags": ["core", "geography"], "text": "The Danube flows through more countries than any other river."}
+{"id": "core-213", "tags": ["core", "geography"], "text": "Tokyo is among the most populous metropolitan areas in the world."}
+{"id": "core-214", "tags": ["core", "geography"], "text": "The Strait of Gibraltar separates Europe from Africa."}
+{"id": "core-215", "tags": ["core", "geography"], "text": "The Panama Canal connects the Atlantic and Pacific Oceans."}
+{"id": "core-216", "tags": ["core", "geography"], "text": "The Suez Canal connects the Mediterranean Sea and the Red Sea."}
+{"id": "core-217", "tags": ["core", "geography"], "text": "Earth's surface is about 71 percent water."}
+{"id": "core-218", "tags": ["core", "geography"], "text": "There are seven continents on Earth."}
+{"id": "core-219", "tags": ["core", "geography"], "text": "The Ring of Fire around the Pacific has most of Earth's active volcanoes."}
+{"id": "core-220", "tags": ["core", "geography"], "text": "The Gobi Desert spans northern China and southern Mongolia."}
+{"id": "core-221", "tags": ["core", "math"], "text": "Pi is approximately 3.14159 and is the ratio of a circle's circumference to its diameter."}
+{"id": "core-222", "tags": ["core", "math"], "text": "The square root of 144 is 12."}
+{"id": "core-223", "tags": ["core", "math"], "text": "A right angle measures 90 degrees."}
+{"id": "core-224", "tags": ["core", "math"], "text": "The angles of a triangle sum to 180 degrees."}
+{"id": "core-225", "tags": ["core", "math"], "text": "The Pythagorean theorem states a squared plus b squared equals c squared for right triangles."}
+{"id": "core-226", "tags": ["core", "math"], "text": "A prime number has exactly two divisors: 1 and itself."}
+{"id": "core-227", "tags": ["core", "math"], "text": "The first five prime numbers are 2, 3, 5, 7, and 11."}
+{"id": "core-228", "tags": ["core", "math"], "text": "Zero is neither positive nor negative."}
+{"id": "core-229", "tags": ["core", "math"], "text": "Any number multiplied by zero equals zero."}
+{"id": "core-230", "tags": ["core", "math"], "text": "The area of a circle is pi times the radius squared."}
+{"id": "core-231", "tags": ["core", "math"], "text": "The circumference of a circle is 2 pi times the radius."}
+{"id": "core-232", "tags": ["core", "math"], "text": "A hexagon has six sides; an octagon has eight."}
+{"id": "core-233", "tags": ["core", "math"], "text": "Percent means per hundred: 25 percent equals one quarter."}
+{"id": "core-234", "tags": ["core", "math"], "text": "The factorial of 5 is 120."}
+{"id": "core-235", "tags": ["core", "math"], "text": "Two to the tenth power is 1024."}
+{"id": "core-236", "tags": ["core", "math"], "text": "The Fibonacci sequence starts 0, 1, 1, 2, 3, 5, 8, 13."}
+{"id": "core-237", "tags": ["core", "math"], "text": "An even number is divisible by 2 with no remainder."}
+{"id": "core-238", "tags": ["core", "math"], "text": "The sum of the first n integers is n times (n+1) divided by 2."}
+{"id": "core-239", "tags": ["core", "math"], "text": "A dozen is 12; a score is 20."}
+{"id": "core-240", "tags": ["core", "math"], "text": "In Roman numerals, X is 10, L is 50, C is 100, D is 500, and M is 1000."}
+{"id": "core-241", "tags": ["core", "astronomy"], "text": "The Sun is a G-type main-sequence star at the center of our solar system."}
+{"id": "core-242", "tags": ["core", "astronomy"], "text": "There are eight planets in the solar system."}
+{"id": "core-243", "tags": ["core", "astronomy"], "text": "Mercury is the closest planet to the Sun; Neptune is the farthest."}
+{"id": "core-244", "tags": ["core", "astronomy"], "text": "Venus is the hottest planet due to its dense carbon dioxide atmosphere."}
+{"id": "core-245", "tags": ["core", "astronomy"], "text": "Mars is called the Red Planet because of iron oxide on its surface."}
+{"id": "core-246", "tags": ["core", "astronomy"], "text": "Jupiter is the largest planet in the solar system."}
+{"id": "core-247", "tags": ["core", "astronomy"], "text": "Saturn is famous for its prominent ring system."}
+{"id": "core-248", "tags": ["core", "astronomy"], "text": "Earth is the third planet from the Sun."}
+{"id": "core-249", "tags": ["core", "astronomy"], "text": "The Moon is Earth's only natural satellite."}
+{"id": "core-250", "tags": ["core", "astronomy"], "text": "A solar eclipse occurs when the Moon passes between the Earth and the Sun."}
+{"id": "core-251", "tags": ["core", "astronomy"], "text": "A lunar eclipse occurs when the Earth passes between the Sun and the Moon."}
+{"id": "core-252", "tags": ["core", "astronomy"], "text": "The Milky Way is the galaxy that contains our solar system."}
+{"id": "core-253", "tags": ["core", "astronomy"], "text": "Light from the Sun takes about 8 minutes and 20 seconds to reach Earth."}
+{"id": "core-254", "tags": ["core", "astronomy"], "text": "Pluto was reclassified as a dwarf planet in 2006."}
+{"id": "core-255", "tags": ["core", "astronomy"], "text": "A comet's tail always points away from the Sun."}
+{"id": "core-256", "tags": ["core", "astronomy"], "text": "The International Space Station orbits Earth roughly every 90 minutes."}
+{"id": "core-257", "tags": ["core", "astronomy"], "text": "Neil Armstrong was the first human to walk on the Moon."}
+{"id": "core-258", "tags": ["core", "astronomy"], "text": "Tides are caused mainly by the gravitational pull of the Moon."}
+{"id": "core-259", "tags": ["core", "astronomy"], "text": "Polaris, the North Star, sits nearly above Earth's North Pole."}
+{"id": "core-260", "tags": ["core", "astronomy"], "text": "Galaxies contain billions of stars held together by gravity."}
