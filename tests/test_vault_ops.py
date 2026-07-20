@@ -34,7 +34,7 @@ def test_duplicate_detection(vault):
 
 def test_journal_replay_after_abandon(vault, vault_path):
     r = vault.store("must survive a crash", caller="test")
-    del vault  # no lock/save — only header+journal on disk
+    del vault  # no lock/save - only header+journal on disk
     v2 = Vault.unlock(vault_path, passphrase=PASS)
     assert v2.db.count() == 1
     assert "survive" in v2.get(r["id"], caller="test")["text"]

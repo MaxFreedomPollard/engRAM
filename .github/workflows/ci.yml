@@ -6,8 +6,8 @@ on:
 
 jobs:
   test-offline:
-    # The full suite — including init, seed-pack install, selftest, store,
-    # search, shred, lock, unlock — runs with the runtime offline guard
+    # The full suite - including init, seed-pack install, selftest, store,
+    # search, shred, lock, unlock - runs with the runtime offline guard
     # active: any attempt to create a network socket aborts the process.
     # This is the executable proof of the zero-network claim.
     strategy:

@@ -1,13 +1,13 @@
 # Selecting engRAM as your agent's memory
 
 How to make engRAM the active memory in each ecosystem. Three mechanisms
-exist in the wild — a native provider slot (Hermes, OpenClaw), MCP tool
+exist in the wild - a native provider slot (Hermes, OpenClaw), MCP tool
 registration (Claude and most modern agents), and plain CLI/JSON (anything
 that can run a subprocess). engRAM supports all three from one install.
 
 ---
 
-## Claude (Code and Desktop) — MCP registration IS the selector
+## Claude (Code and Desktop) - MCP registration IS the selector
 
 Claude has no memory-provider picker; registering an MCP server is how you
 give Claude a memory. One command does everything:
@@ -41,7 +41,7 @@ instruction to your `CLAUDE.md` / project memory:
 > answering questions about past work, and store durable facts and user
 > decisions with `memory_store`.
 
-## Hermes — native provider picker (works today)
+## Hermes - native provider picker (works today)
 
 One command:
 
@@ -58,7 +58,7 @@ manual steps, for reference:
 python -m pip install engram-vault
 # 2. the provider plugin (from this repo)
 cp -r integrations/hermes/engram ~/.hermes/plugins/engram
-# 3. a vault (once) — seeds 4,807 starter facts, stays unlocked until reboot
+# 3. a vault (once) - seeds 4,807 starter facts, stays unlocked until reboot
 engram init
 # 4. SELECT IT
 hermes memory setup
@@ -67,16 +67,16 @@ hermes memory setup
 The picker then shows:
 
 ```
-  byterover     — API key / local
-  hindsight     — API key / local
-  holographic   — local
-  honcho        — API key / local
-  mem0          — API key / local
-  openviking    — API key / local
-  retaindb      — API key / local
-  supermemory   — requires API key
-▸ engram       — no setup needed        ← choose this
-  Built-in only — MEMORY.md / USER.md
+  byterover     - API key / local
+  hindsight     - API key / local
+  holographic   - local
+  honcho        - API key / local
+  mem0          - API key / local
+  openviking    - API key / local
+  retaindb      - API key / local
+  supermemory   - requires API key
+▸ engram       - no setup needed        ← choose this
+  Built-in only - MEMORY.md / USER.md
 ```
 
 engRAM is the only entry that needs no API key and no cloud account.
@@ -88,11 +88,11 @@ turn encrypted, and exposes `engram_search` / `engram_store` /
 
 **Shipping in Hermes out of the box** (no copy step for anyone): that
 requires an upstream hermes-agent PR bundling this plugin under
-`plugins/memory/engram` with `pip_dependencies: ["engram-vault"]` —
+`plugins/memory/engram` with `pip_dependencies: ["engram-vault"]` -
 which in turn requires the PyPI release. Sequence: publish `engram-vault`
 → PR → every Hermes user sees engRAM in the picker by default.
 
-## OpenClaw — one command (MCP), plugin slot planned
+## OpenClaw - one command (MCP), plugin slot planned
 
 ```bash
 pip install engram-vault && engram init && engram integrate openclaw

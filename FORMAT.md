@@ -54,7 +54,7 @@ index.
 
 ### Payload
 
-`payload_plain = TLV(sections)`; currently one section, `"sqlite"` — a
+`payload_plain = TLV(sections)`; currently one section, `"sqlite"` - a
 serialized SQLite database image (schema in `store.py`; includes records,
 FTS5 index, audit chain, meta).
 `payload_ct = AEAD_seal(master_key, payload_plain, aad="engram-payload:"+vault_id)`.
@@ -79,7 +79,7 @@ append (acknowledged). Ops:
 ```
 
 Reading: a **truncated final** entry (length prefix incomplete or body
-short at EOF) is an unacknowledged crash artifact — discard with notice.
+short at EOF) is an unacknowledged crash artifact - discard with notice.
 Any other malformed entry, or any AEAD failure, is a tamper error: abort.
 
 Compaction (`save`/`lock`): serialize → seal → write `path.tmp` → fsync →

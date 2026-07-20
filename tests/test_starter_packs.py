@@ -69,4 +69,4 @@ def test_bundled_hermes_plugin_in_sync():
     for f in ("__init__.py", "plugin.yaml"):
         canonical = (root / "integrations" / "hermes" / "engram" / f).read_bytes()
         shipped = (root / "src" / "engram" / "data" / "hermes-plugin" / f).read_bytes()
-        assert canonical == shipped, f"{f} out of sync — re-copy into data/hermes-plugin"
+        assert canonical == shipped, f"{f} out of sync - re-copy into data/hermes-plugin"

@@ -9,7 +9,7 @@ Invariant I2: plaintext never touches disk. The payload and every journal
 entry are sealed before any byte is written. lock/save rewrites the file
 atomically (temp file → fsync → rename). Journal appends are fsync'd, so an
 acknowledged write survives kill -9; a truncated *final* entry is an
-unacknowledged write and is discarded on open with a notice — any other
+unacknowledged write and is discarded on open with a notice - any other
 malformed byte is a tamper error.
 """
 from __future__ import annotations
@@ -219,7 +219,7 @@ def append_journal_entry(path: str, header: VaultHeader, seq: int, entry: dict, 
 
 
 # ---------------------------------------------------------------------------
-# Signed manifest (vault sealing) — verifiable without any key.
+# Signed manifest (vault sealing) - verifiable without any key.
 # ---------------------------------------------------------------------------
 
 def _make_manifest(header: VaultHeader, payload_ct: bytes, signing_key: SigningKey) -> dict:

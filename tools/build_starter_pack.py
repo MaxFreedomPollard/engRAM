@@ -29,11 +29,11 @@ records = [json.loads(l) for l in SRC.read_text().splitlines() if l.strip()]
 ids = [r["id"] for r in records]
 if len(set(ids)) != len(ids):
     dupes = sorted({i for i in ids if ids.count(i) > 1})
-    raise SystemExit(f"duplicate ids in starter_facts.jsonl: {dupes[:10]} — fix "
+    raise SystemExit(f"duplicate ids in starter_facts.jsonl: {dupes[:10]} - fix "
                      "before building")
 missing = [i for i, r in enumerate(records, 1) if not r.get("text", "").strip()]
 if missing:
-    raise SystemExit(f"empty text at line(s) {missing[:10]} — fix before building")
+    raise SystemExit(f"empty text at line(s) {missing[:10]} - fix before building")
 
 identity = json.loads(IDENTITY_FILE.read_text())
 emb = Embedder(DEFAULT_MODEL)

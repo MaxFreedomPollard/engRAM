@@ -1,4 +1,4 @@
-"""engRAM — high-security, fully offline, encrypted vector memory for AI agents."""
+"""engRAM - high-security, fully offline, encrypted vector memory for AI agents."""
 
 __version__ = "1.7.0"
 

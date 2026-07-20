@@ -1,6 +1,6 @@
 # Hermes integration
 
-`engram/` is a native Hermes **memory provider plugin** — the same
+`engram/` is a native Hermes **memory provider plugin** - the same
 mechanism Hindsight and Mem0 use. Hermes discovers user-installed providers
 in `~/.hermes/plugins/<name>/` and activates the one named by
 `memory.provider` in `~/.hermes/config.yaml`.
@@ -22,6 +22,6 @@ the vault file, and the locked-by-default guarantee (after any restart,
 memory is unavailable until `engram unlock`).
 
 Prefer MCP instead? `engram serve` works with `hermes mcp add` like any
-MCP server — but the provider integration is the recommended path for
+MCP server - but the provider integration is the recommended path for
 Hermes because recall/persistence become automatic rather than
 tool-invoked.

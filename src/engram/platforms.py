@@ -80,7 +80,7 @@ class FileLock:
 
 
 # ---------------------------------------------------------------------------
-# Boot time — changes on every restart/power loss (basis of the session cred)
+# Boot time - changes on every restart/power loss (basis of the session cred)
 # ---------------------------------------------------------------------------
 
 def boot_time() -> str:

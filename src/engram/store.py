@@ -54,7 +54,7 @@ class StoreError(CryptoError):
 
 class Store:
     def __init__(self, image: bytes | None = None):
-        # Autocommit: the DB lives only in RAM — durability comes from the
+        # Autocommit: the DB lives only in RAM - durability comes from the
         # vault's own AEAD journal, and VACUUM (crypto-shred) needs no open tx.
         # check_same_thread=False: background writers (Hermes provider,
         # auto-lock) may touch the connection; Vault serializes all access

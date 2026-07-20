@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# engRAM installer — macOS
+# engRAM installer - macOS
 # Installs the package, creates + unlocks a vault (with macOS starter facts),
 # and prints the Hermes selection step. Fully offline after this script.
 set -euo pipefail

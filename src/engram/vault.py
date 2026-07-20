@@ -237,7 +237,7 @@ class Vault:
             return env, None
         raise CryptoError(
             "Vault is locked (locked-by-default: every restart or power loss "
-            "requires one unlock). Run `engram unlock` — it then stays "
+            "requires one unlock). Run `engram unlock` - it then stays "
             "unlocked until the next restart or `engram lock`."
         )
 
@@ -311,7 +311,7 @@ class Vault:
             raise CryptoError("Refusing to store empty text")
         if vec is None:
             vec = self.embedder.embed_passages([text])[0]
-        # near-duplicate check within the namespace (organic memories only —
+        # near-duplicate check within the namespace (organic memories only -
         # pack contents are curated and install verbatim)
         thr = 2.0 if pack is not None else float(
             self.config.settings.get("duplicate_threshold", 0.97))
@@ -424,7 +424,7 @@ class Vault:
                 break
         self._audit_and_capture(caller, "search", f"q={query[:80]!r} hits={len(results)}")
         # search audit entries live in RAM until next save/lock (no journal
-        # write per search — reads shouldn't cost an fsync); acceptable, and
+        # write per search - reads shouldn't cost an fsync); acceptable, and
         # documented in SECURITY.md.
         return {"results": results, "note": DATA_NOT_INSTRUCTIONS}
 

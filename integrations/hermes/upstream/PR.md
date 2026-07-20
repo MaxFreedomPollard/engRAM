@@ -13,12 +13,12 @@ default, exactly like hindsight/mem0/byterover, with zero manual steps.
 
 ## The change (two files, no core edits)
 
-- `plugins/memory/engram/__init__.py` — copy of
+- `plugins/memory/engram/__init__.py` - copy of
   `integrations/hermes/engram/__init__.py` from this repo, unchanged.
   It implements the MemoryProvider ABC; is_available() degrades cleanly
   when the pip package or vault is absent, so bundling it is inert until
   a user selects it.
-- `plugins/memory/engram/plugin.yaml` — the `upstream/plugin.yaml`
+- `plugins/memory/engram/plugin.yaml` - the `upstream/plugin.yaml`
   beside this file (declares `pip_dependencies: ["engram-vault>=1.5"]`
   so the picker's dependency step installs the engine on selection).
 

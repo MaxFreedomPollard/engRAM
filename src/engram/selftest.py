@@ -63,7 +63,7 @@ def run(vault, caller: str = "selftest") -> dict:
 
 def _seed_id_map(vault) -> dict[str, str]:
     """Map vault record id → original core-facts id (stored in provenance-free
-    pack records via their tags/text? — we match on the stable text prefix)."""
+    pack records via their tags/text? - we match on the stable text prefix)."""
     out = {}
     for row in vault.db.conn.execute(
             "SELECT id FROM records WHERE ns = 'packs/starter'"):

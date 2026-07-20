@@ -2,12 +2,12 @@
 
 The lock model engRAM ships by default:
 
-- `engram unlock` once → the vault stays usable continuously — for weeks or
+- `engram unlock` once → the vault stays usable continuously - for weeks or
   months, across logouts/logins, across every new `engram`/`serve` process.
 - Any RESTART or POWER LOSS locks it: the credential is the master key
   wrapped by a key derived from the kernel's boot timestamp (plus uid and
   hostname). A new boot has a new timestamp, so the old wrap can never be
-  opened again — the file becomes dead ciphertext and is deleted on sight.
+  opened again - the file becomes dead ciphertext and is deleted on sight.
 - `engram lock` (or the MCP panic tool) deletes it immediately.
 
 This is deliberately a CONVENIENCE credential, weaker than the passphrase:
@@ -51,7 +51,7 @@ def _uid() -> str:
 
 def _boot_key() -> bytes:
     """Wrap key valid only for this boot session of this user on this
-    machine. Uses the stable hardware machine id, NOT the hostname —
+    machine. Uses the stable hardware machine id, NOT the hostname -
     macOS renames the host per network, which must not relock the vault."""
     token = "|".join((
         "engram-session-v2",

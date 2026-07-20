@@ -71,8 +71,8 @@ def cmd_init(args) -> None:
     path = args.vault
     Path(path).parent.mkdir(parents=True, exist_ok=True)
     if os.path.exists(path):
-        _die(f"{path} already exists — engRAM never overwrites a vault")
-    print(f"engRAM {__version__} — creating vault: {path}")
+        _die(f"{path} already exists - engRAM never overwrites a vault")
+    print(f"engRAM {__version__} - creating vault: {path}")
     print(f"Embedding model: {DEFAULT_MODEL} (bundled, offline)")
     if args.passphrase:
         pw = args.passphrase
@@ -84,7 +84,7 @@ def cmd_init(args) -> None:
     if not pw:
         _die("empty passphrase refused")
     v, words = Vault.create(path, pw, creator=args.creator)
-    print("\n=== RECOVERY PHRASE (shown exactly once — write it down) ===")
+    print("\n=== RECOVERY PHRASE (shown exactly once - write it down) ===")
     for i in range(0, 16, 4):
         print("   " + "  ".join(f"{j+1:2d}.{words[j]}" for j in range(i, i + 4)))
     print("=" * 60)
@@ -126,14 +126,14 @@ def cmd_unlock(args) -> None:
         if sys.platform != "darwin":
             _die("--keychain is only available on macOS")
         keychain_store(args.vault, v._master)
-        print("unlocked: KEYCHAIN credential stored — persists across reboots "
+        print("unlocked: KEYCHAIN credential stored - persists across reboots "
               "until `engram lock` (see SECURITY.md for the tradeoff)")
     elif args.once:
         print("credential verified for this invocation only (no credential stored)")
     else:
         session.store(args.vault, v._master)
-        print("unlocked: stays unlocked continuously — through logins, for "
-              "weeks or months — until the next RESTART/power loss or "
+        print("unlocked: stays unlocked continuously - through logins, for "
+              "weeks or months - until the next RESTART/power loss or "
               "`engram lock`.")
     v.save()
 
@@ -411,7 +411,7 @@ def cmd_integrate(args) -> None:
                 sp.run([str(hermes_py), "-m", "pip", "install", "-q",
                         "engram-vault"], check=False)
         if not os.path.exists(vault):
-            print(f"! no vault at {vault} — run `engram init` first, then re-run "
+            print(f"! no vault at {vault} - run `engram init` first, then re-run "
                   "this command")
             return
         hermes = shutil.which("hermes")
@@ -447,7 +447,7 @@ def cmd_integrate(args) -> None:
                   "then run `openclaw gateway restart`:")
             print(json.dumps({"engram": entry}, indent=2))
         if not os.path.exists(vault):
-            print(f"\n! no vault at {vault} — run `engram init` to create one")
+            print(f"\n! no vault at {vault} - run `engram init` to create one")
 
     elif target == "claude":
         engram_bin = shutil.which("engram") or "engram"
@@ -472,7 +472,7 @@ def cmd_integrate(args) -> None:
               "answering\n    about past work; store durable facts and user "
               "decisions with memory_store.")
         if not os.path.exists(vault):
-            print(f"\n! no vault at {vault} — run `engram init` to create one")
+            print(f"\n! no vault at {vault} - run `engram init` to create one")
     else:
         _die(f"unknown integrate target {target!r} (hermes | claude)")
 
@@ -524,7 +524,7 @@ def cmd_setup(args) -> None:
                        "site-packages.\n"
                        "4. Run: python -m engram.cli init\n"
                        "The DEFAULT install already contains the model and seed "
-                       "pack — this bundle exists for machines with no network "
+                       "pack - this bundle exists for machines with no network "
                        "at all.\n")
         h = hashlib.sha256(out.read_bytes()).hexdigest()
         print(f"wrote {out} ({out.stat().st_size//1024//1024} MB)\nsha256 {h}")
@@ -543,7 +543,7 @@ def main(argv: list[str] | None = None) -> None:
     offline_guard.activate_from_env()
     ap = argparse.ArgumentParser(
         prog="engram",
-        description="engRAM — high-security offline vector memory for AI agents")
+        description="engRAM - high-security offline vector memory for AI agents")
     ap.add_argument("--vault", default=DEFAULT_VAULT,
                     help=f"vault path (default {DEFAULT_VAULT})")
     ap.add_argument("--caller", default="user")

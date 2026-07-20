@@ -1,7 +1,7 @@
 """Per-caller namespace access control + vault-adjacent settings.
 
 Config lives NEXT to the vault as `<vault>.config.json` (it contains no
-secrets — only ACLs and preferences). `packs/*` namespaces are ALWAYS
+secrets - only ACLs and preferences). `packs/*` namespaces are ALWAYS
 read-only for every caller, including "*". Violations are hard errors.
 """
 from __future__ import annotations

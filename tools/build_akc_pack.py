@@ -2,7 +2,7 @@
 
 Converts AKC's structured records into self-contained natural-language fact
 sentences (what a vector memory retrieves well), embeds them with the bundled
-model, and signs the pack. Pragmatic subsets only — measurements, physical
+model, and signs the pack. Pragmatic subsets only - measurements, physical
 constants, country facts, chemical elements, planets/moons/constellations,
 and common-food nutrition. Pure facts, no opinions.
 
@@ -200,7 +200,7 @@ def main():
                for i, t in enumerate(texts)]
     print(f"total pragmatic facts: {len(records)}")
     if not records:
-        raise SystemExit("no AKC facts produced — is tools/akc_source/ populated?")
+        raise SystemExit("no AKC facts produced - is tools/akc_source/ populated?")
 
     # The starter memory is unified now: this writes the regenerated AKC
     # section as JSONL. Merge it into tools/starter/starter_facts.jsonl
@@ -208,7 +208,7 @@ def main():
     with open(OUT, "w") as f:
         for r in records:
             f.write(json.dumps(r, sort_keys=True, ensure_ascii=False) + "\n")
-    print(f"wrote {OUT} ({len(records)} records) — merge into "
+    print(f"wrote {OUT} ({len(records)} records) - merge into "
           "starter_facts.jsonl and rebuild with tools/build_starter_pack.py")
 
 

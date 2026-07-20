@@ -50,7 +50,7 @@ fast are the same choice here, and neither costs you a configuration step.
 One command per platform. Each installs the package, creates your
 encrypted vault preloaded with the starter knowledge, and wires the agent.
 
-**Claude (Code + Desktop)** — macOS / Linux:
+**Claude (Code + Desktop)** - macOS / Linux:
 ```bash
 pip install engram-vault && engram init && engram integrate claude
 ```
@@ -62,7 +62,7 @@ Registers the MCP server with the Claude Code CLI (user scope, all
 projects), prints the Claude Desktop config block, and prints the one-line
 CLAUDE.md instruction that makes Claude treat engRAM as its memory.
 
-**Hermes** — macOS / Linux:
+**Hermes** - macOS / Linux:
 ```bash
 pip install engram-vault && engram init && engram integrate hermes
 ```
@@ -76,7 +76,7 @@ Installs the provider plugin, wires the Hermes venv, and runs
 marked **"no setup needed"**: no API key, no cloud account, no daemon.
 Verify with `hermes memory status`.
 
-**OpenClaw** — macOS / Linux:
+**OpenClaw** - macOS / Linux:
 ```bash
 pip install engram-vault && engram init && engram integrate openclaw
 ```
@@ -176,7 +176,7 @@ one JSON fact per line, readable and editable by hand. Exact contents:
   apt/dnf/pacman, permission bits.
 
 To change what ships: edit `starter_facts.jsonl`, run
-`python tools/build_starter_pack.py`, done — every line is re-embedded and
+`python tools/build_starter_pack.py`, done - every line is re-embedded and
 the pack re-signed ([PACKS.md](PACKS.md)). Grow a live vault directly with
 `engram store` / `engram import`.
 

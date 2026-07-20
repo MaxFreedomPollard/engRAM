@@ -1,6 +1,6 @@
 # engRAM Security Model
 
-Honest threat model. Read the "cannot protect against" section too — a
+Honest threat model. Read the "cannot protect against" section too - a
 security product that claims everything protects nothing.
 
 ## Cryptography
@@ -17,13 +17,13 @@ security product that claims everything protects nothing.
 
 No homemade crypto. AAD binds every ciphertext to its role and vault
 (payloads, journal entries by sequence number, keyslots, record bodies by
-record id) — ciphertexts cannot be transplanted between contexts.
+record id) - ciphertexts cannot be transplanted between contexts.
 
 ## What engRAM protects against
 
 - **Stolen disk / stolen laptop (vault at rest):** the vault file is a
   single AEAD-sealed blob under an Argon2id-wrapped key. No plaintext,
-  no plaintext index, no temp files, no logs exist on disk — ever (I2).
+  no plaintext index, no temp files, no logs exist on disk - ever (I2).
 - **Vault interception in transit:** a locked vault is safe to move over
   any channel. Optional Ed25519 manifest (`lock --sign`) lets the
   recipient verify origin and integrity without any credential.
@@ -34,7 +34,7 @@ record id) — ciphertexts cannot be transplanted between contexts.
   verified before anything is parsed further; failure aborts install.
 - **Forensic recovery of deleted memories:** `forget --shred` destroys the
   per-record key, deletes the row + FTS entries, VACUUMs, and rewrites the
-  payload — the content is gone from the current vault file and its
+  payload - the content is gone from the current vault file and its
   ciphertext history within that file.
 - **Cross-agent memory access:** per-caller namespace grants (rw/ro/none);
   `packs/*` immutable for everyone. Run one server instance per host for
@@ -45,7 +45,7 @@ record id) — ciphertexts cannot be transplanted between contexts.
 - **Stored prompt injection:** memories recalled from storage are wrapped
   with a data-not-instructions notice; content stored from untrusted
   sources can be flagged `quarantined`, which attaches an explicit warning
-  envelope to every future recall. This is a mitigation, not a guarantee —
+  envelope to every future recall. This is a mitigation, not a guarantee -
   the host agent must still treat memory as data.
 - **History falsification:** the audit log is hash-chained; `engram audit
   verify` reports the first broken link.
@@ -55,7 +55,7 @@ record id) — ciphertexts cannot be transplanted between contexts.
 - **A compromised OS while the vault is unlocked.** Anything that can read
   this process's RAM can read the working set and the master key. This is
   true of every encryption product; unlock only on machines you trust.
-- **RAM at unlock time generally** — including swap in pathological cases.
+- **RAM at unlock time generally** - including swap in pathological cases.
   Python cannot guarantee zeroization (the GC may copy buffers); `lock`
   wipes what it can, best-effort. A future Rust core would tighten this.
 - **Pre-shred backups.** Crypto-shred removes content from the *current*
@@ -65,11 +65,11 @@ record id) — ciphertexts cannot be transplanted between contexts.
   name's grants. For real isolation, run one `engram serve` per host with
   its own config file and OS-level separation.
 - **Weak passphrases.** Argon2id slows attackers; it cannot save
-  "password1". The 16-word recovery phrase carries 128 bits — store it
+  "password1". The 16-word recovery phrase carries 128 bits - store it
   offline.
 - **Search-audit persistence gap:** search audit entries are held in RAM
   until the next save/lock (writes are journaled immediately; reads don't
-  cost an fsync). A kill -9 can lose recent *search* audit entries — never
+  cost an fsync). A kill -9 can lose recent *search* audit entries - never
   store/forget entries.
 
 ## Unlock paths, ranked
@@ -77,10 +77,10 @@ record id) — ciphertexts cannot be transplanted between contexts.
 1. **Boot-session credential (the default).** `engram unlock` wraps the
    master key with a key derived from the current boot's kernel timestamp
    (plus uid + hostname) and stores it 0600 in `~/.engram/session/`. The
-   vault then stays continuously usable — across processes, logouts, and
-   logins, for weeks or months — and RELOCKS on any restart or power loss:
+   vault then stays continuously usable - across processes, logouts, and
+   logins, for weeks or months - and RELOCKS on any restart or power loss:
    the new boot's derivation can never open the old wrap, and stale files
-   are deleted on sight. This is deliberately a convenience credential —
+   are deleted on sight. This is deliberately a convenience credential -
    an attacker who can read it on the *running* machine could also read
    process RAM; once power is lost it is dead ciphertext. (A forensic
    caveat: the previous boot time may be recoverable from system logs, so
@@ -88,7 +88,7 @@ record id) — ciphertexts cannot be transplanted between contexts.
    than the passphrase. Use FileVault/FDE, which you should anyway.)
 2. **macOS Keychain** (`engram unlock --keychain`, explicit opt-in):
    credential guarded by the OS keychain. Stronger against file theft than
-   the session credential, but it SURVIVES REBOOTS — choose it only if
+   the session credential, but it SURVIVES REBOOTS - choose it only if
    that is what you want.
 3. **`ENGRAM_PASSPHRASE` env var:** for scripts/CI; visible to anything
    that can read the process environment.
@@ -100,7 +100,7 @@ record id) — ciphertexts cannot be transplanted between contexts.
 `engram lock` and the `memory_lock` panic tool clear ALL stored
 credentials (session + keychain). Auto-lock drops the in-RAM key after
 `auto_lock_minutes` (default 30) idle; while a stored credential remains,
-the next operation silently re-opens — stored credentials represent
+the next operation silently re-opens - stored credentials represent
 standing user intent, ended by `engram lock` or a reboot.
 
 ## Multi-agent, one vault
@@ -108,7 +108,7 @@ standing user intent, ended by `engram lock` or a reboot.
 Several agent processes (Hermes provider, Claude via MCP, the CLI) may
 share one vault: an advisory file lock serializes every journal append and
 save, and each process detects foreign writes (mtime/size) and reloads
-before proceeding — a stale writer gets a loud VaultStaleError, never
+before proceeding - a stale writer gets a loud VaultStaleError, never
 silent corruption. Namespace ACLs are per-caller; `--caller` identity is
 declarative (see the hostile-host limitation above).
 

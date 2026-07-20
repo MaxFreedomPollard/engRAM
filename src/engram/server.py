@@ -2,12 +2,12 @@
 
 The host process that spawns us is the only thing that can reach the vault.
 Caller identity comes from --caller (declarative; run one server instance
-per host with its own ACL config for real isolation — see SECURITY.md).
+per host with its own ACL config for real isolation - see SECURITY.md).
 
 Credential resolution at startup: macOS Keychain → ENGRAM_PASSPHRASE env.
 memory_unlock exists but is DISABLED unless the vault config sets
 settings.unlock_tool_enabled = true (the passphrase would transit the
-agent's context window — see SECURITY.md).
+agent's context window - see SECURITY.md).
 """
 from __future__ import annotations
 
@@ -32,7 +32,7 @@ def _vault() -> Vault:
     v = _state["vault"]
     if v is not None and not v._locked and v.is_stale():
         # another process (Hermes provider, CLI, another host) wrote the
-        # vault — reload so we operate on current state
+        # vault - reload so we operate on current state
         _state["vault"] = None
         v = None
     if v is None or v._locked:

@@ -107,11 +107,11 @@ def read_pack(blob: bytes, passphrase: str | None = None
             crypto.canonical_json({k: v for k, v in header.items() if k != "sig"}),
             bytes.fromhex(header["sig"]))
     except Exception as exc:
-        raise TamperError(f"Pack {header.get('name','?')!r}: SIGNATURE INVALID — "
+        raise TamperError(f"Pack {header.get('name','?')!r}: SIGNATURE INVALID - "
                           "refusing to install") from exc
     # 2) content hash of the body as stored
     if crypto.sha256(body) != header["content_sha256"]:
-        raise TamperError(f"Pack {header['name']!r}: content hash mismatch — "
+        raise TamperError(f"Pack {header['name']!r}: content hash mismatch - "
                           "the pack body was modified; refusing to install")
     # 3) optional decryption
     if header.get("encrypted"):

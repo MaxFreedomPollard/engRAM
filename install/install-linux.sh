@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# engRAM installer — Linux
+# engRAM installer - Linux
 # Installs the package, creates + unlocks a vault (with Linux starter facts),
 # and prints the Hermes selection step. Fully offline after this script.
 set -euo pipefail

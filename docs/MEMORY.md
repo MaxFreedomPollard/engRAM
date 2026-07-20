@@ -22,33 +22,33 @@ vector + text
 record
  │  3. ENCRYPT       fresh per-record key wraps the text (XChaCha20-Poly1305);
  ▼                   the per-record key itself is wrapped by the vault master
- │                   key — destroying it later = crypto-shred
+ │                   key - destroying it later = crypto-shred
  │  4. INDEX         vector → RAM-resident index (exact SIMD < 20k records,
  ▼                   SIMD HNSW above); tokens → FTS5 BM25 index
  │  5. PERSIST       the write is sealed (AEAD) and appended to the vault
- ▼                   journal with fsync — an acknowledged write survives
+ ▼                   journal with fsync - an acknowledged write survives
  │                   kill -9 and power loss
  └─ 6. AUDIT         a hash-chained, encrypted audit entry records who
-                     stored what, when — history cannot be silently edited
+                     stored what, when - history cannot be silently edited
 ```
 
 Every stored record carries: the text (encrypted under its own key), its
 384-dim float32 vector, namespace, tags, importance, quarantine flag,
 provenance (host / agent / session), and timestamps. **The vector is
-encrypted at rest too** — embeddings can be partially inverted back toward
+encrypted at rest too** - embeddings can be partially inverted back toward
 their text, so treating vectors as non-sensitive (as most systems do) is a
 hole; engRAM doesn't have it.
 
 New memories land in the writing agent's namespace (e.g. `hermes`), in the
 same vault and the same searchable index as the starter pack
-(`packs/starter`) — one vector space, searched together. Pack
+(`packs/starter`) - one vector space, searched together. Pack
 namespaces stay read-only, so curated knowledge is never diluted by chat
 traffic, and living memory never has to be shipped to be shared.
 
 ### Nothing embeds twice
 
 Install time is the one moment most systems spend minutes embedding a
-starter corpus — engRAM spends zero, because memory packs ship their
+starter corpus - engRAM spends zero, because memory packs ship their
 vectors precomputed, bit-exact for the pinned model. Runtime embedding
 happens exactly once per new memory, forever cached inside the vault.
 
@@ -58,15 +58,15 @@ engRAM never calls an LLM (that is what keeps the offline guarantee
 absolute), so the write decision is a **deterministic, importance-tiered
 classifier**. Its governing principle: **remember aggressively, and
 prioritize the user and their machine over world trivia.** The user is not
-here to have their words filtered — *every answer they give is
+here to have their words filtered - *every answer they give is
 information.*
 
 **Store nearly everything.** The only turns dropped are genuinely empty
-ones. A bare "yes", "no", or "OK" is not noise — it is a decision, and
+ones. A bare "yes", "no", or "OK" is not noise - it is a decision, and
 often the most important thing in the whole session. When the assistant
 asks *"Can I edit the registry to accomplish this?"* and the user replies
-*"OK"*, engRAM stores a self-contained consent record —
-`[decision <date>] Approved (answered "OK"): Can I edit the registry…` —
+*"OK"*, engRAM stores a self-contained consent record -
+`[decision <date>] Approved (answered "OK"): Can I edit the registry…` -
 by resolving the question from the preceding assistant turn. A later "did
 the user approve registry edits?" retrieves exactly that.
 
@@ -79,20 +79,20 @@ matters.** Every stored memory gets a deterministic importance:
 | 0.80 | personal facts and preferences (about the user) |
 | 0.75 | the user's machine / environment / configuration |
 | 0.55 | other substantive statements (incl. world facts the user states) |
-| 0.20 | pure social pleasantries ("thanks", "lol") — kept, ranked last |
+| 0.20 | pure social pleasantries ("thanks", "lol") - kept, ranked last |
 
 Classification is by signal: personal pronouns and preference verbs
 (*I, my, prefer, favorite, always, remember*) mark tier-0.80 facts; system
 vocabulary (*registry, path, password, port, install, version, sudo,
 service*) marks tier-0.75 machine facts. Nothing is discarded for being
-low-value — pleasantries are simply ranked last.
+low-value - pleasantries are simply ranked last.
 
 **Deduplication is exact-match only.** Vault.store drops a write whose
 nearest neighbor is ≥ 0.97 cosine (a literal repeat) and returns the
 existing id. There is deliberately **no aggressive novelty gate**: a second
 "yes" to a *different* question is new information, and because its stored
 text embeds the question it is not a near-duplicate anyway. engRAM favors
-completeness over compactness — at a few KB per memory, thousands of turns
+completeness over compactness - at a few KB per memory, thousands of turns
 cost only a few MB, and importance-weighted ranking keeps recall sharp.
 
 **Recall reflects the priority.** The fused search score is
@@ -106,11 +106,11 @@ the registry edit?" and the consent decision wins.
 
 **The agent-directed path.** The host model (Hermes, Claude, anything)
 also holds `engram_store` / `engram_forget` tools, so the intelligence
-*you already pay for* can curate explicitly — distilling, correcting, or
+*you already pay for* can curate explicitly - distilling, correcting, or
 crypto-shredding memories. engRAM splits the labor: **the host model
 supplies judgment; engRAM supplies deterministic capture, encryption, and
 total recall.** A memory layer that runs its own LLM either phones home
-(privacy gone) or ships a second multi-gigabyte model (your RAM gone) — and
+(privacy gone) or ships a second multi-gigabyte model (your RAM gone) - and
 its decisions become non-reproducible either way.
 
 Recall closes the loop: before each turn the user's message is embedded
@@ -118,31 +118,31 @@ and the top memories above cosine 0.45 are injected as context, ranked by
 reciprocal-rank fusion of vector similarity and BM25 keyword score.
 Recalled content is always wrapped with a *data-not-instructions* notice,
 and memories flagged `quarantined` (stored from untrusted sources) carry
-an explicit warning envelope — stored-prompt-injection hygiene that
+an explicit warning envelope - stored-prompt-injection hygiene that
 memory layers generally lack.
 
 ## 3. Why this is mathematically and logically stronger
 
-**Exact search at personal scale — retrieval is provably optimal.** Below
+**Exact search at personal scale - retrieval is provably optimal.** Below
 20,000 records engRAM computes all similarities with SIMD matrix math:
 the top-k result is the true top-k, recall = 1.0 by construction, in
 under a millisecond. Mainstream vector stores run approximate (ANN)
-indexes at *every* scale, accepting 95–99% recall on corpora small enough
-to search exactly — approximation error with no compensating benefit.
+indexes at *every* scale, accepting 95-99% recall on corpora small enough
+to search exactly - approximation error with no compensating benefit.
 engRAM only switches to HNSW (~99% recall, p95 < 15 ms at 1M) when the
 corpus actually demands it, and `reindex` rebuilds from stored vectors at
 any time.
 
-**One pinned embedding space — cosine stays meaningful.** Similarity
+**One pinned embedding space - cosine stays meaningful.** Similarity
 between two vectors is only defined if one model produced both. engRAM
 records the embedding model's SHA-256 in the vault and **refuses to open**
 with a mismatched model (explicit `reindex --re-embed` migrates instead).
 Systems that let the embedding model drift silently corrupt every
-similarity they compute afterward — the errors are invisible until
+similarity they compute afterward - the errors are invisible until
 retrieval quietly degrades.
 
 **Completeness with clean recall.** engRAM stores nearly every turn (only
-exact-duplicate writes are dropped), so nothing the user says is lost —
+exact-duplicate writes are dropped), so nothing the user says is lost -
 but importance tiers and cosine-weighted fusion keep retrieval sharp, so a
 complete store does not mean a noisy recall. Turn-logging systems also grow
 O(turns) but rank purely by recency or raw keyword match, so their
@@ -162,7 +162,7 @@ attempt); recovering a shredded memory means decrypting XChaCha20 without
 its destroyed key; brute-forcing the passphrase costs 64 MiB × 3
 iterations of Argon2id *per guess*; reviving an unlock credential after
 power loss means re-deriving a key whose input (the boot timestamp) no
-longer exists. No policy checks, no honor system — each guarantee is an
+longer exists. No policy checks, no honor system - each guarantee is an
 inequality about a well-studied primitive.
 
 **Latency arithmetic.** Local embed ~25 ms + exact search <1 ms ≈ **one
@@ -170,11 +170,11 @@ network round-trip is already slower than our entire pipeline.** Cloud
 memory APIs add tens to thousands of milliseconds per recall and per
 store, on every single turn, plus an availability dependency and a
 privacy surrender. The RAM-residency that makes engRAM secure (no
-plaintext index on disk) is the same property that makes it fast — in
+plaintext index on disk) is the same property that makes it fast - in
 this design, security and speed are the same decision.
 
 **Honest limits** (see SECURITY.md for the full threat model): importance
-classification is heuristic, not semantic understanding — the host model's
+classification is heuristic, not semantic understanding - the host model's
 explicit curation exists precisely to cover what heuristics miss; storing
 nearly everything trades disk for completeness by design; HNSW above 20k
 records is ~99% recall, not 100%; and no memory system can protect an
@@ -184,12 +184,12 @@ unlocked vault from a fully compromised OS.
 
 | Property | engRAM | Cloud memory APIs | Typical local vector DB | Raw turn-logging |
 |---|---|---|---|---|
-| Recall correctness (personal scale) | exact, 1.0 | ANN ≈0.95–0.99 | ANN ≈0.95–0.99 | keyword only |
-| Store/recall latency | ~25 ms / <1 ms | 100 ms–40 s | ms | ms |
+| Recall correctness (personal scale) | exact, 1.0 | ANN ≈0.95-0.99 | ANN ≈0.95-0.99 | keyword only |
+| Store/recall latency | ~25 ms / <1 ms | 100 ms-40 s | ms | ms |
 | Storage & ranking | complete store, importance-ranked recall | O(turns), recency-ranked | O(turns) | O(turns), keyword-ranked |
 | Embedding-space consistency | hash-pinned, enforced | provider may change | unenforced | n/a |
 | At-rest encryption (incl. vectors) | always, AEAD | provider-side | usually none | none |
 | Deletion | crypto-shred | request + trust | row delete | row delete |
 | Tamper evidence | AEAD + hash-chained audit | none visible | none | none |
 | Works offline / air-gapped | always | never | usually | yes |
-| Survives restart unlocked | no — locked by default | n/a | yes (no lock at all) | yes |
+| Survives restart unlocked | no - locked by default | n/a | yes (no lock at all) | yes |

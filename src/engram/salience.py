@@ -1,11 +1,11 @@
-"""Deciding what to remember, and how strongly — offline, deterministic.
+"""Deciding what to remember, and how strongly - offline, deterministic.
 
 Policy (engRAM remembers aggressively, and prioritizes the user + their
 machine over world trivia):
 
 * STORE NEARLY EVERYTHING. The only turns dropped are genuinely empty ones.
-  Every answer the user gives — yes, no, "ok", a number, a preference, an
-  opinion, a stray fact — is information and is stored. A bare "OK" in reply
+  Every answer the user gives - yes, no, "ok", a number, a preference, an
+  opinion, a stray fact - is information and is stored. A bare "OK" in reply
   to "Can I edit the registry?" is a consent decision, often the most
   important thing in the whole session; it is captured together with the
   question that produced it (see integrations resolving prior_question).
@@ -16,14 +16,14 @@ machine over world trivia):
     0.80  personal facts and preferences (about the user)
     0.75  the user's machine / environment / configuration
     0.55  other substantive statements (incl. world facts the user states)
-    0.20  pure social pleasantries ("thanks", "lol") — kept, ranked last
+    0.20  pure social pleasantries ("thanks", "lol") - kept, ranked last
 
 * DEDUP is exact-match only (Vault.store's 0.97 cosine guard). We do NOT
   drop "near-duplicates": a second yes/no to a *different* question is new
   information, and its stored text (which includes the question) is not a
   near-duplicate anyway.
 
-engRAM still never calls an LLM — the host model curates explicitly via
+engRAM still never calls an LLM - the host model curates explicitly via
 engram_store / engram_forget when it wants to distill or delete.
 """
 from __future__ import annotations
@@ -49,7 +49,7 @@ _NEGATE = {
     "no", "n", "nope", "nah", "don't", "dont", "do not", "stop", "cancel",
     "negative", "never", "no thanks", "no thank you", "not now", "skip", "pass",
 }
-# Purely phatic — kept but ranked last. Never dropped.
+# Purely phatic - kept but ranked last. Never dropped.
 _PLEASANTRY = {
     "thanks", "thank you", "thx", "ty", "cheers", "lol", "haha", "hah", "nice",
     "cool", "great", "awesome", "perfect", "ok thanks", "thanks!", "great thanks",
@@ -96,7 +96,7 @@ def assess_turn(user_text: str, assistant_text: str = "") -> Assessment:
         return Assessment(False, 0.0, "empty", False, "", (), "empty user turn")
     norm = _norm(u)
 
-    # 1) Decision? (a yes/no-style answer) — highest priority, needs context.
+    # 1) Decision? (a yes/no-style answer) - highest priority, needs context.
     if norm in _AFFIRM or norm in _NEGATE:
         polarity = "affirm" if norm in _AFFIRM else "negate"
         return Assessment(True, IMP_DECISION, "decision", True, polarity,
@@ -118,7 +118,7 @@ def assess_turn(user_text: str, assistant_text: str = "") -> Assessment:
         return Assessment(True, IMP_MACHINE, "machine", False, "",
                           tuple(tags), "machine/environment info")
 
-    # 3) Pure pleasantry — kept, but ranked last.
+    # 3) Pure pleasantry - kept, but ranked last.
     if norm in _PLEASANTRY:
         return Assessment(True, IMP_PLEASANTRY, "chatter", False, "",
                           ("chatter",), "social pleasantry (kept, low priority)")

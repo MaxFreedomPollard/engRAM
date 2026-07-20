@@ -1,6 +1,6 @@
 name: engram
 version: 1.7.0
-description: "engRAM — high-security, fully offline, encrypted vector memory. AEAD-encrypted vault, locked-by-default after restart, ships with a starter knowledge pack."
+description: "engRAM - high-security, fully offline, encrypted vector memory. AEAD-encrypted vault, locked-by-default after restart, ships with a starter knowledge pack."
 pip_dependencies: []
 requires_env: []
 hooks:

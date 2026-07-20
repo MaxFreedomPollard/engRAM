@@ -40,7 +40,7 @@ def test_restart_invalidates_session_credential(vault, vault_path, monkeypatch):
     assert session.get(vault_path) is None          # credential dead
     with pytest.raises(CryptoError):
         Vault.resolve_credential(vault_path)        # locked again
-    # and the stale file was removed — even reverting the clock can't revive it
+    # and the stale file was removed - even reverting the clock can't revive it
     monkeypatch.undo()
     assert session.get(vault_path) is None
 

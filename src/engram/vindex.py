@@ -1,7 +1,7 @@
 """RAM-resident vector indexes behind a small swappable interface.
 
 - BruteForceIndex: exact SIMD dot-products (numpy/BLAS). Perfect recall,
-  sub-millisecond below ~20k records — used automatically at small scale.
+  sub-millisecond below ~20k records - used automatically at small scale.
 - UsearchIndex: HNSW via usearch (SIMD-accelerated), f32 or int8-quantized.
 
 Both are rebuilt in RAM from the vectors stored inside the sealed payload
